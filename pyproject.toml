@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "alembic>=1.15.2",
+    "dishka>=1.5.3",
     "fastapi[all]>=0.115.12",
+    "mypy>=1.15.0",
     "sqlalchemy>=2.0.40",
 ]

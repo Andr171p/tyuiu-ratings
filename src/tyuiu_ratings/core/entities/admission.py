@@ -1,3 +1,4 @@
+from uuid import UUID
 from datetime import datetime
 
 from typing import List
@@ -11,6 +12,7 @@ class Subject(BaseModel):
 
 
 class Profile(BaseModel):
+    user_id: UUID
     applicant_id: int
     gpa: float
     subjects: List[Subject]
@@ -22,8 +24,8 @@ class Applicant(BaseModel):
     direction: str  # Направление подготовки
     points: int  # Сумма баллов
     original: bool  # Сдан оригинал
-    
-    
+
+
 class Rating(BaseModel):
     institute: str
     direction: str
