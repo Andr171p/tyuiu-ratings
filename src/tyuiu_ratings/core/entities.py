@@ -21,7 +21,6 @@ class Applicant(BaseModel):
     institute: str  # Институт
     direction: str  # Направление подготовки
     points: int  # Сумма баллов
-    subjects: List[str]  # ?
     original: bool  # Сдан оригинал
     
     
