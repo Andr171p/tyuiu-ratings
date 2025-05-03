@@ -15,6 +15,10 @@ MAX_GPA = 5
 MIN_EXAM_POINTS = 0
 MAX_EXAM_POINTS = 100
 
+# Минимальное и максимальное значение приоритета:
+MIN_PRIORITY = 1
+MAX_PRIORITY = 5
+
 # Возможные экзамены ЕГЭ:
 AVAILABLE_EXAM_NAMES = [
     "Русский язык",
@@ -30,3 +34,5 @@ AVAILABLE_EXAM_NAMES = [
 BUDGET_PLACES_FOR_DIRECTIONS = {
     "": ...
 }
+
+PREDICTED_YEAR = 2024
