@@ -1,9 +1,9 @@
 from uuid import UUID
 from abc import ABC, abstractmethod
-from typing import Any, Optional, List
+from typing import Optional, List
 
-from ..entities import Profile
-from ..dto import ProfileReadDTO
+from ..entities import Profile, Applicant
+from ..dto import ProfileReadDTO, ApplicantReadDTO
 
 
 class ProfileRepository(ABC):
@@ -27,7 +27,29 @@ class ProfileRepository(ABC):
 
 
 class ApplicantRepository(ABC):
-    ...
+    @abstractmethod
+    async def create(self, applicant: Applicant) -> None: pass
+
+    @abstractmethod
+    async def bulk_create(self, applicants: List[Applicant]) -> None: pass
+
+    @abstractmethod
+    async def read(self, applicant_id: int) -> Optional[ApplicantReadDTO]: pass
+
+    @abstractmethod
+    async def update(self, applicant: Applicant) -> None: pass
+
+    @abstractmethod
+    async def bulk_update(self, applicants: List[Applicant]) -> None: pass
+
+    @abstractmethod
+    async def get_by_direction(self, direction: str) -> List[Applicant]: pass
+
+    @abstractmethod
+    async def paginate(self, page: int, limit: int) -> List[Applicant]: pass
+
+    @abstractmethod
+    async def paginate_by_direction(self, direction: str, page: int, limit: int) -> List[Applicant]: pass
 
 
 class HistoryRepository(ABC):

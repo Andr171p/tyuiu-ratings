@@ -6,6 +6,17 @@ from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy import ForeignKey, DateTime, func, Index, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 
+from src.tyuiu_ratings.constants import (
+    MIN_GPA,
+    MAX_GPA,
+    MIN_POINTS,
+    MAX_POINTS,
+    MIN_EXAM_POINTS,
+    MAX_EXAM_POINTS,
+    MIN_BONUS_POINTS,
+    MAX_BONUS_POINTS
+)
+
 
 class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
@@ -21,8 +32,8 @@ class Base(AsyncAttrs, DeclarativeBase):
     )
 
 
-class SubjectOrm(Base):
-    __tablename__ = "subjects"
+class ExamOrm(Base):
+    __tablename__ = "exams"
 
     applicant_id: Mapped[int] = mapped_column(
         ForeignKey("profiles.applicant_id"),
@@ -32,6 +43,13 @@ class SubjectOrm(Base):
     points: Mapped[int]
 
     profile: Mapped["ProfileOrm"] = relationship(back_populates="subjects")
+
+    __table_args__ = (
+        CheckConstraint(
+            f"points <= {MAX_EXAM_POINTS} AND points >= {MIN_EXAM_POINTS}",
+            "check_exam_points_range"
+        )
+    )
     
 
 class ProfileOrm(Base):
@@ -40,14 +58,14 @@ class ProfileOrm(Base):
     user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True))
     applicant_id: Mapped[int] = mapped_column(unique=True, nullable=False, primary_key=True)
     gpa: Mapped[float]
-    subjects: Mapped[list["SubjectOrm"]] = relationship(back_populates="profile")
+    exams: Mapped[list["ExamOrm"]] = relationship(back_populates="profile")
     
     applicants: Mapped[list["ApplicantOrm"]] = relationship(back_populates="profile")
     history: Mapped[list["HistoryOrm"]] = relationship(back_populates="profile")
 
     __table_args__ = (
         Index("id_index", "user_id", "applicant_id"),
-        CheckConstraint("gpa > 0 and gpa <= 5", "check_gpa_interval")
+        CheckConstraint(f"gpa >= {MIN_GPA} AND gpa <= {MAX_GPA}", "check_gpa_range")
     )
     
     
@@ -59,6 +77,7 @@ class ApplicantOrm(Base):
         nullable=False
     )   
     points: Mapped[int]
+    bonus_points: Mapped[int]
     ratings: Mapped[int]
     institute: Mapped[str] = mapped_column(nullable=False)
     direction: Mapped[str] = mapped_column(nullable=False)
@@ -66,6 +85,18 @@ class ApplicantOrm(Base):
     original: Mapped[bool]
     
     profile: Mapped["ProfileOrm"] = relationship(back_populates="applicants")
+
+    __table_args__ = (
+        Index("direction_index", "direction"),
+        CheckConstraint(
+            f"points >= {MIN_POINTS} AND points <= {MAX_POINTS}",
+            "check_points_range"
+        ),
+        CheckConstraint(
+            f"bonus_points >= {MIN_BONUS_POINTS} AND bonus_points <= {MAX_BONUS_POINTS}",
+            "check_bonus_points_range"
+        )
+    )
     
     
 class HistoryOrm(Base):

@@ -1,5 +1,6 @@
 __all__ = (
-    "Profile"
+    "Profile",
+    "Applicant"
 )
 
-from .admission import Profile
+from .admission import Profile, Applicant
