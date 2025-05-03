@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from abc import ABC, abstractmethod
 
 from ..dto import (
@@ -10,12 +10,13 @@ from ..dto import (
 
 class BinaryClassifier(ABC):
     @abstractmethod
-    async def predict(self, applicant: ApplicantPredictDTO) -> float: pass
+    async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]: pass
 
     @abstractmethod
-    async def predict_batch(self, applicants: List[ApplicantPredictDTO]) -> List[float]: pass
+    async def predict_batch(self, applicants: List[ApplicantPredictDTO]) -> Optional[List[float]]: pass
 
 
 class RecommendationSystem(ABC):
     @abstractmethod
-    async def recommend(self, applicant: ApplicantRecommendDTO) -> RecommendedDirectionDTO: pass
+    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[List[RecommendedDirectionDTO]]: pass
+
