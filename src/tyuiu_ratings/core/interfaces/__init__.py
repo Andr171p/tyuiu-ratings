@@ -1,5 +1,6 @@
 __all__ = (
-    "ProfileRepository"
+    "ProfileRepository",
+    "ApplicantRepository"
 )
 
-from .repositories import ProfileRepository
+from .repositories import ProfileRepository, ApplicantRepository

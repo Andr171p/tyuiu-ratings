@@ -40,13 +40,13 @@ class ApplicantRepository(ABC):
     async def update(self, applicant: Applicant) -> None: pass
 
     @abstractmethod
+    async def delete(self, applicant_id: int) -> int: pass
+
+    @abstractmethod
     async def bulk_update(self, applicants: List[Applicant]) -> None: pass
 
     @abstractmethod
     async def get_by_direction(self, direction: str) -> List[Applicant]: pass
-
-    @abstractmethod
-    async def paginate(self, page: int, limit: int) -> List[Applicant]: pass
 
     @abstractmethod
     async def paginate_by_direction(self, direction: str, page: int, limit: int) -> List[Applicant]: pass
