@@ -19,7 +19,7 @@ from src.tyuiu_ratings.constants import (
 
 class Exam(BaseModel):
     name: str
-    points: int = Field(gt=MIN_EXAM_POINTS, ge=MAX_EXAM_POINTS)
+    points: int = Field(ge=MIN_EXAM_POINTS, le=MAX_EXAM_POINTS)
 
 
 class DirectionCompetition(BaseModel):
@@ -30,7 +30,7 @@ class DirectionCompetition(BaseModel):
 class Profile(BaseModel):
     user_id: UUID
     applicant_id: int
-    gpa: float = Field(gt=MIN_GPA, ge=MAX_GPA)
+    gpa: float = Field(ge=MIN_GPA, le=MAX_GPA)
     exams: List[Exam]
 
 
@@ -38,8 +38,8 @@ class Applicant(BaseModel):
     applicant_id: int  # Уникальный код абитуриента
     institute: str  # Институт
     direction: str  # Направление подготовки
-    points: int = Field(gt=MIN_POINTS, ge=MAX_POINTS)  # Сумма баллов ЕГЭ
-    bonus_points: int = Field(gt=MIN_BONUS_POINTS, ge=MAX_BONUS_POINTS)  # Дополнительные баллы
+    points: int = Field(ge=MIN_POINTS, le=MAX_POINTS)  # Сумма баллов ЕГЭ
+    bonus_points: int = Field(ge=MIN_BONUS_POINTS, le=MAX_BONUS_POINTS)  # Дополнительные баллы
     original: bool  # Сдан оригинал
 
 
