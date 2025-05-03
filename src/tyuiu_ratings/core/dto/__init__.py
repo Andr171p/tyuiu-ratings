@@ -3,4 +3,4 @@ __all__ = (
     "ApplicantReadDTO"
 )
 
-from .admission import ProfileReadDTO, ApplicantReadDTO
+from .rating import ProfileReadDTO, ApplicantReadDTO

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import ProfileOrm
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
-from src.tyuiu_ratings.core.entities.admission import Profile
+from src.tyuiu_ratings.core.entities.rating import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO
 
 

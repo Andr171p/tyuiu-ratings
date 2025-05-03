@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import ApplicantOrm
 from src.tyuiu_ratings.core.interfaces import ApplicantRepository
-from src.tyuiu_ratings.core.entities.admission import Applicant
+from src.tyuiu_ratings.core.entities.rating import Applicant
 from src.tyuiu_ratings.core.dto import ApplicantReadDTO
 
 

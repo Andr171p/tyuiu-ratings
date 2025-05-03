@@ -3,4 +3,5 @@ __all__ = (
     "Applicant"
 )
 
-from .admission import Profile, Applicant
+from .profile import Profile
+from .rating import Applicant
