@@ -17,7 +17,7 @@ class BinaryClassifierApi(BinaryClassifier):
 
     async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]:
         try:
-            url = f"{self.base_url}/classifier/predict"
+            url = f"{self.base_url}/api/v1/classifier/predict"
             headers = {"Content-Type": "application/json; charset=UTF-8"}
             async with aiohttp.ClientSession() as session:
                 async with session.post(
