@@ -12,7 +12,7 @@ load_dotenv(ENV_PATH)
 
 
 class MicroServicesSettings(BaseSettings):
-    binary_classifier_url: str = "http://localhost:8000"
+    BINARY_CLASSIFIER_URL: str = os.getenv("TYUIU_BINARY_CLASSIFIER_URL")
 
 
 class Settings(BaseSettings):
