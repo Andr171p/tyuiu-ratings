@@ -7,15 +7,14 @@ from sqlalchemy.dialects.postgresql import insert
 
 from ..models import ApplicantOrm
 from src.tyuiu_ratings.core.interfaces import ApplicantRepository
-from src.tyuiu_ratings.core.entities.rating import Applicant
-from src.tyuiu_ratings.core.dto import ApplicantReadDTO
+from src.tyuiu_ratings.core.dto import ApplicantReadDTO, ApplicantCreateDTO
 
 
 class SQLApplicantRepository(ApplicantRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def create(self, applicant: Applicant) -> None:
+    async def create(self, applicant: ApplicantCreateDTO) -> None:
         try:
             stmt = (
                 insert(ApplicantOrm)
@@ -31,7 +30,7 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while creating: {e}")
 
-    async def bulk_create(self, applicants: List[Applicant]) -> None:
+    async def bulk_create(self, applicants: List[ApplicantCreateDTO]) -> None:
         try:
             for applicant in applicants:
                 stmt = (
@@ -56,7 +55,7 @@ class SQLApplicantRepository(ApplicantRepository):
             )
             result = await self.session.execute(stmt)
             applicant = result.scalar_one_or_none()
-            return Applicant.model_validate(applicant) if applicant else None
+            return ApplicantReadDTO.model_validate(applicant) if applicant else None
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading {e}")
@@ -74,7 +73,7 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while deleting: {e}")
 
-    async def get_by_direction(self, direction: str) -> List[Applicant]:
+    async def get_by_direction(self, direction: str) -> List[ApplicantReadDTO]:
         try:
             stmt = (
                 select(ApplicantOrm)
@@ -82,7 +81,7 @@ class SQLApplicantRepository(ApplicantRepository):
             )
             results = await self.session.execute(stmt)
             applicants = results.scalars().all()
-            return [Applicant.model_validate(applicant) for applicant in applicants]
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading by direction: {e}")
@@ -92,7 +91,7 @@ class SQLApplicantRepository(ApplicantRepository):
             direction: str,
             page: int,
             limit: int
-    ) -> List[Applicant]:
+    ) -> List[ApplicantReadDTO]:
         try:
             offset = (page - 1) * limit
             stmt = (
@@ -103,7 +102,7 @@ class SQLApplicantRepository(ApplicantRepository):
             )
             results = await self.session.execute(stmt)
             applicants = results.scalars().all()
-            return [Applicant.model_validate(applicant) for applicant in applicants]
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while paginate by direction: {e}")
