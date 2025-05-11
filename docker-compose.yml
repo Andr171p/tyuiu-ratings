@@ -22,12 +22,12 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user", "-d", "dio"]
+      test: ["CMD", "pg_isready", "-U", "user", "-d", "postgres"]
       interval: 5s
       timeout: 3s
       retries: 3

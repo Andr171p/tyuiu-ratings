@@ -42,7 +42,7 @@ class ExamOrm(Base):
     subject: Mapped[str]
     points: Mapped[int]
 
-    profile: Mapped["ProfileOrm"] = relationship(back_populates="subjects")
+    profile: Mapped["ProfileOrm"] = relationship(back_populates="exams")
 
     __table_args__ = (
         CheckConstraint(
@@ -56,7 +56,11 @@ class ProfileOrm(Base):
     __tablename__ = "profiles"
 
     user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True))
-    applicant_id: Mapped[int] = mapped_column(unique=True, nullable=False, primary_key=True)
+    applicant_id: Mapped[int] = mapped_column(
+        unique=True, 
+        nullable=False, 
+        primary_key=True
+    )
     gender: Mapped[str]
     gpa: Mapped[float]
     exams: Mapped[list["ExamOrm"]] = relationship(back_populates="profile")

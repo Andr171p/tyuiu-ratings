@@ -1,8 +1,9 @@
 from typing import List, Optional
 
+from sqlalchemy import select, delete
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.dialects.postgresql import insert
 
 from ..models import ApplicantOrm
 from src.tyuiu_ratings.core.interfaces import ApplicantRepository
@@ -16,8 +17,15 @@ class SQLApplicantRepository(ApplicantRepository):
 
     async def create(self, applicant: Applicant) -> None:
         try:
-            applicant_orm = ApplicantOrm(**applicant.model_dump())
-            self.session.add(applicant_orm)
+            stmt = (
+                insert(ApplicantOrm)
+                .values(**applicant.model_dump())
+                .on_conflict_do_update(
+                    index_elements=["applicant_id"],
+                    set_=dict(applicant.model_dump())
+                )
+            )
+            await self.session.execute(stmt)
             await self.session.commit()
         except SQLAlchemyError as e:
             await self.session.rollback()
@@ -26,8 +34,15 @@ class SQLApplicantRepository(ApplicantRepository):
     async def bulk_create(self, applicants: List[Applicant]) -> None:
         try:
             for applicant in applicants:
-                applicant_orm = ApplicantOrm(**applicant.model_dump())
-                self.session.add(applicant_orm)
+                stmt = (
+                    insert(ApplicantOrm)
+                    .values(**applicant.model_dump())
+                    .on_conflict_do_update(
+                        index_elements=["applicant_id"],
+                        set_=dict(applicant.model_dump())
+                    )
+                )
+                await self.session.execute(stmt)
             await self.session.commit()
         except SQLAlchemyError as e:
             await self.session.rollback()
@@ -45,33 +60,6 @@ class SQLApplicantRepository(ApplicantRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading {e}")
-
-    async def update(self, applicant: Applicant) -> None:
-        try:
-            stmt = (
-                update(ApplicantOrm)
-                .where(ApplicantOrm.applicant_id == applicant.applicant_id)
-                .values(**applicant.model_dump())
-            )
-            await self.session.execute(stmt)
-            await self.session.commit()
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            raise RuntimeError(f"Error while updating: {e}")
-
-    async def bulk_update(self, applicants: List[Applicant]) -> None:
-        try:
-            for applicant in applicants:
-                stmt = (
-                    update(ApplicantOrm)
-                    .where(ApplicantOrm.applicant_id == applicant.applicant_id)
-                    .values(**applicant.model_dump())
-                )
-                await self.session.execute(stmt)
-            await self.session.commit()
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            raise RuntimeError(f"Error while bulk updating: {e}")
 
     async def delete(self, applicant_id: int) -> int:
         try:

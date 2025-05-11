@@ -6,9 +6,9 @@ from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import ProfileOrm
-from src.tyuiu_ratings.core.interfaces import ProfileRepository
-from src.tyuiu_ratings.core.entities.rating import Profile
+from src.tyuiu_ratings.core.entities import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO
+from src.tyuiu_ratings.core.interfaces import ProfileRepository
 
 
 class SQLProfileRepository(ProfileRepository):
