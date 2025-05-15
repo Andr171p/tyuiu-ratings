@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
+
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.entities import Profile

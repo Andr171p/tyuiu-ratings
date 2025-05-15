@@ -1,17 +1,17 @@
-import logging
+from typing import Optional
 
-from typing import List, Optional
+import logging
 
 import aiohttp
 
 from ..core.dto import ApplicantPredictDTO, ApplicantRecommendDTO, RecommendedDirectionDTO
-from ..core.interfaces import BinaryClassifier, RecommendationSystem
+from ..core.interfaces import Classifier, RecommendationSystem
 
 
 logger = logging.getLogger(__name__)
 
 
-class BinaryClassifierApi(BinaryClassifier):
+class ClassifierAPI(Classifier):
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url
 
@@ -30,11 +30,11 @@ class BinaryClassifierApi(BinaryClassifier):
         except aiohttp.ClientError as e:
             logger.error("Error while predict: %s", e)
 
-    async def predict_batch(self, applicants: List[ApplicantPredictDTO]) -> Optional[List[float]]:
+    async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> Optional[list[float]]:
         try:
             url = f"{self.base_url}/api/v1/classifier/predict"
             headers = {"Content-Type": "application/json; charset=UTF-8"}
-            applicants = {"applicants": applicants}
+            applicants = {"applicants": applicant.model_dump() for applicant in applicants}
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                     url=url,
@@ -47,11 +47,11 @@ class BinaryClassifierApi(BinaryClassifier):
             logger.error("Error while predict batch: %s", e)
 
 
-class RecommendationSystemApi(RecommendationSystem):
+class RecommendationSystemAPI(RecommendationSystem):
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url
 
-    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[List[RecommendedDirectionDTO]]:
+    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendedDirectionDTO]]:
         try:
             url = f"{self.base_url}/api/v1/recommendations/"
             headers = {"Content-Type": "application/json; charset=UTF-8"}

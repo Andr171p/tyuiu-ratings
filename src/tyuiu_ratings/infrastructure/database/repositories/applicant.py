@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
@@ -60,19 +60,6 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while reading {e}")
 
-    async def delete(self, applicant_id: int) -> int:
-        try:
-            stmt = (
-                delete(ApplicantOrm)
-                .where(ApplicantOrm.applicant_id == applicant_id)
-                .returning(ApplicantOrm.applicant_id)
-            )
-            applicant_id = await self.session.execute(stmt)
-            return applicant_id.scalar()
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            raise RuntimeError(f"Error while deleting: {e}")
-
     async def get_by_direction(self, direction: str) -> List[ApplicantReadDTO]:
         try:
             stmt = (
@@ -85,6 +72,19 @@ class SQLApplicantRepository(ApplicantRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading by direction: {e}")
+
+    async def get_by_applicant_id(self, applicant_id: int) -> list[ApplicantReadDTO]:
+        try:
+            stmt = (
+                select(ApplicantOrm)
+                .where(ApplicantOrm.applicant_id == applicant_id)
+            )
+            results = await self.session.execute(stmt)
+            applicants = results.scalars().all()
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while reading by applicant id: {e}")
 
     async def paginate_by_direction(
             self,

@@ -1,9 +1,31 @@
-from uuid import UUID
-from abc import ABC, abstractmethod
 from typing import Optional, List
 
-from ..entities import Profile
-from ..dto import ProfileReadDTO, ApplicantReadDTO, ApplicantCreateDTO
+from abc import ABC, abstractmethod
+
+from uuid import UUID
+
+from .domain import Profile
+from .dto import (
+    ProfileReadDTO,
+    ApplicantReadDTO,
+    ApplicantCreateDTO,
+    ApplicantPredictDTO,
+    ApplicantRecommendDTO,
+    RecommendedDirectionDTO
+)
+
+
+class AdmissionClassifier(ABC):
+    @abstractmethod
+    async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]: pass
+
+    @abstractmethod
+    async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> Optional[list[float]]: pass
+
+
+class RecommendationSystem(ABC):
+    @abstractmethod
+    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendedDirectionDTO]]: pass
 
 
 class ProfileRepository(ABC):
@@ -20,9 +42,6 @@ class ProfileRepository(ABC):
     async def delete(self, user_id: UUID) -> Optional[ProfileReadDTO]: pass
 
     @abstractmethod
-    async def list(self) -> List[ProfileReadDTO]: pass
-
-    @abstractmethod
     async def get_by_applicant_id(self, applicant_id: int) -> Optional[ProfileReadDTO]: pass
 
 
@@ -31,16 +50,16 @@ class ApplicantRepository(ABC):
     async def create(self, applicant: ApplicantCreateDTO) -> None: pass
 
     @abstractmethod
-    async def bulk_create(self, applicants: List[ApplicantCreateDTO]) -> None: pass
+    async def bulk_create(self, applicants: list[ApplicantCreateDTO]) -> None: pass
 
     @abstractmethod
     async def read(self, applicant_id: int) -> Optional[ApplicantReadDTO]: pass
 
     @abstractmethod
-    async def delete(self, applicant_id: int) -> int: pass
+    async def get_by_direction(self, direction: str) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
-    async def get_by_direction(self, direction: str) -> List[ApplicantReadDTO]: pass
+    async def get_by_applicant_id(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
     async def paginate_by_direction(

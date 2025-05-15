@@ -68,16 +68,6 @@ class SQLProfileRepository(ProfileRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while deleting profile: {e}")
 
-    async def list(self) -> List[Profile]:
-        try:
-            stmt = select(ProfileOrm)
-            results = await self.session.execute(stmt)
-            profiles = results.scalars().all()
-            return [ProfileReadDTO.model_validate(profile) for profile in profiles]
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            raise RuntimeError(f"Error while reading all profiles: {e}")
-
     async def get_by_applicant_id(self, applicant_id: int) -> Optional[Profile]:
         try:
             stmt = (
