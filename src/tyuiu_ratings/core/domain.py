@@ -24,6 +24,7 @@ from ..constants import (
 
 class Applicant(BaseModel):
     applicant_id: int  # Уникальный код абитуриента
+    rating: int  # Место в рейтинге
     institute: str  # Институт
     direction: str  # Направление подготовки
     priority: int = Field(ge=MIN_PRIORITY, le=MAX_PRIORITY)  # Приоритет
@@ -35,6 +36,7 @@ class Applicant(BaseModel):
         from .dto import ApplicantCreateDTO
         return ApplicantCreateDTO(
             applicant_id=self.applicant_id,
+            rating=self.rating,
             institute=self.institute,
             direction=self.direction,
             priority=self.priority,
@@ -52,6 +54,7 @@ class Rating(BaseModel):
 
 
 class PlaceInRating(BaseModel):
+    applicant_id: int
     rating: int
     date: datetime
 

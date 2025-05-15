@@ -84,7 +84,7 @@ class ApplicantOrm(Base):
     )   
     points: Mapped[int]
     bonus_points: Mapped[int]
-    ratings: Mapped[int]
+    rating: Mapped[int]
     institute: Mapped[str] = mapped_column(nullable=False)
     direction: Mapped[str] = mapped_column(nullable=False)
     probability: Mapped[float]
@@ -110,10 +110,11 @@ class HistoryOrm(Base):
     
     applicant_id: Mapped[int] = mapped_column(
         ForeignKey("profiles.applicant_id"),
+        unique=False,
         nullable=False
     )   
     rating: Mapped[int]
-    date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+    date: Mapped[datetime] = mapped_column(DateTime, default=datetime.today)
     
     applicant: Mapped["ApplicantOrm"] = relationship(back_populates="history")
     

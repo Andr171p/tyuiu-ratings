@@ -1,24 +1,20 @@
-import logging
-
-from typing import List
-
+from faststream import Logger
 from faststream.rabbit import RabbitRouter
 from dishka.integrations.base import FromDishka
 
-from src.tyuiu_ratings.core.entities import Applicant
-from src.tyuiu_ratings.core.interfaces import ApplicantRepository
+from src.tyuiu_ratings.core.domain import Applicant
+from src.tyuiu_ratings.core.use_cases import RatingUpdater
 
-
-logger = logging.getLogger(__name__)
 
 applicants_router = RabbitRouter()
 
 
 @applicants_router.subscriber("ratings.applicants")
 async def update_applicants(
-        applicants: List[Applicant],
-        applicant_repository: FromDishka[ApplicantRepository]
+        applicants: list[Applicant],
+        rating_updater: FromDishka[RatingUpdater],
+        logger: Logger
 ) -> None:
     logger.info("Receiving %s applicants", len(applicants))
-    await applicant_repository.bulk_create(applicants)
-    logger.info("Successfully saved applicants")
+    await rating_updater.update(applicants)
+    logger.info("Successfully update rating of applicants")

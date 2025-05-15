@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from uuid import UUID
 
-from .domain import Profile
+from .domain import Profile, PlaceInRating
 from .dto import (
     ProfileReadDTO,
     ApplicantReadDTO,
@@ -71,4 +71,5 @@ class ApplicantRepository(ABC):
 
 
 class HistoryRepository(ABC):
-    ...
+    @abstractmethod
+    async def bulk_create(self, places: list[PlaceInRating]) -> None: pass
