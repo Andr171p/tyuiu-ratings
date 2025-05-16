@@ -18,7 +18,9 @@ from ..constants import (
     MIN_BONUS_POINTS,
     MAX_BONUS_POINTS,
     MIN_EXAM_POINTS,
-    MAX_EXAM_POINTS
+    MAX_EXAM_POINTS,
+    AVAILABLE_DIRECTIONS,
+    AVAILABLE_SUBJECTS
 )
 
 
@@ -26,7 +28,7 @@ class Applicant(BaseModel):
     applicant_id: int  # Уникальный код абитуриента
     rating: int  # Место в рейтинге
     institute: str  # Институт
-    direction: str  # Направление подготовки
+    direction: AVAILABLE_DIRECTIONS  # Направление подготовки
     priority: int = Field(ge=MIN_PRIORITY, le=MAX_PRIORITY)  # Приоритет
     points: int = Field(ge=MIN_POINTS, le=MAX_POINTS)  # Сумма баллов ЕГЭ
     bonus_points: int = Field(ge=MIN_BONUS_POINTS, le=MAX_BONUS_POINTS)  # Дополнительные баллы
@@ -65,7 +67,7 @@ class History(BaseModel):
 
 
 class Exam(BaseModel):
-    subject: str
+    subject: AVAILABLE_SUBJECTS
     points: int = Field(ge=MIN_EXAM_POINTS, le=MAX_EXAM_POINTS)
 
 
