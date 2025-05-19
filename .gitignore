@@ -19,6 +19,7 @@ venv/
 .venv/
 ENV/
 env/
+.env
 
 # Дистрибуция и установка
 build/
