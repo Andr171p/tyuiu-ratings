@@ -1,5 +1,4 @@
 from typing import Optional, List
-from collections.abc import AsyncIterable
 
 from abc import ABC, abstractmethod
 
@@ -85,6 +84,11 @@ class HistoryRepository(ABC):
     async def read(self, applicant_id: int) -> list[Rank]: pass
 
 
-class Notifier(ABC):
+class BaseNotifier(ABC):
+    profile_repository: "ProfileRepository"
+
     @abstractmethod
-    async def get_notifications(self) -> AsyncIterable[Notification]: pass
+    async def create_notification(self, applicant: ApplicantReadDTO) -> Optional[Notification]: pass
+
+    @abstractmethod
+    async def _check_conditional(self, *args) -> bool: pass
