@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from ..utils import (
     calculate_velocity,
+    calculate_mean_velocity,
     calculate_acceleration,
     calculate_stability
 )
@@ -72,8 +73,12 @@ class History(BaseModel):
     history: list[Rank]
 
     @property
-    def velocity(self) -> float:
+    def velocity(self) -> list[float]:
         return calculate_velocity(self.history)
+
+    @property
+    def mean_velocity(self) -> float:
+        return calculate_mean_velocity(self.history)
 
     @property
     def acceleration(self) -> list[float]:

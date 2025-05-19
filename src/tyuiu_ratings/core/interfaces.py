@@ -1,10 +1,11 @@
 from typing import Optional, List
+from collections.abc import AsyncIterable
 
 from abc import ABC, abstractmethod
 
 from uuid import UUID
 
-from .domain import Profile, Rank
+from .domain import Profile, Rank, Notification
 from .dto import (
     ProfileReadDTO,
     ApplicantReadDTO,
@@ -82,3 +83,8 @@ class HistoryRepository(ABC):
 
     @abstractmethod
     async def read(self, applicant_id: int) -> list[Rank]: pass
+
+
+class Notifier(ABC):
+    @abstractmethod
+    async def get_notifications(self) -> AsyncIterable[Notification]: pass
