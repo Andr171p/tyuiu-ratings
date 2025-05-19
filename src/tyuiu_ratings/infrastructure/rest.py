@@ -5,13 +5,13 @@ import logging
 import aiohttp
 
 from ..core.dto import ApplicantPredictDTO, ApplicantRecommendDTO, RecommendedDirectionDTO
-from ..core.interfaces import Classifier, RecommendationSystem
+from ..core.interfaces import AdmissionClassifier, RecommendationSystem
 
 
 logger = logging.getLogger(__name__)
 
 
-class ClassifierAPI(Classifier):
+class AdmissionClassifierAPI(AdmissionClassifier):
     def __init__(self, base_url: str) -> None:
         self.base_url = base_url
 

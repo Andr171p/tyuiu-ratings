@@ -1,4 +1,4 @@
-from typing import Literal, TYPE_CHECKING
+from typing import Literal, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .dto import ApplicantCreateDTO
@@ -8,6 +8,11 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from ..utils import (
+    calculate_velocity,
+    calculate_acceleration,
+    calculate_stability
+)
 from ..constants import (
     MIN_GPA,
     MAX_GPA,
@@ -20,7 +25,8 @@ from ..constants import (
     MIN_EXAM_POINTS,
     MAX_EXAM_POINTS,
     AVAILABLE_DIRECTIONS,
-    AVAILABLE_SUBJECTS
+    AVAILABLE_SUBJECTS,
+    NOTIFICATION_LEVELS
 )
 
 
@@ -55,7 +61,7 @@ class Rating(BaseModel):
     rating: list[Applicant]
 
 
-class PlaceInRating(BaseModel):
+class Rank(BaseModel):
     applicant_id: int
     rating: int
     date: datetime
@@ -63,7 +69,19 @@ class PlaceInRating(BaseModel):
 
 class History(BaseModel):
     applicant_id: int
-    history: list[PlaceInRating]
+    history: list[Rank]
+
+    @property
+    def velocity(self) -> float:
+        return calculate_velocity(self.history)
+
+    @property
+    def acceleration(self) -> list[float]:
+        return calculate_acceleration(self.history)
+
+    @property
+    def stability(self) -> float:
+        return calculate_stability(self.history)
 
 
 class Exam(BaseModel):
@@ -77,3 +95,10 @@ class Profile(BaseModel):
     gender: Literal["male", "female"]
     gpa: float = Field(ge=MIN_GPA, le=MAX_GPA)
     exams: list[Exam]
+
+
+class Notification(BaseModel):
+    level: NOTIFICATION_LEVELS
+    user_id: UUID
+    photo: Optional[str] = None
+    text: str

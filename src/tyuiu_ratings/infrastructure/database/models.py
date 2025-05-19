@@ -1,11 +1,11 @@
 from uuid import UUID
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy import ForeignKey, DateTime, func, Index, CheckConstraint
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
+from sqlalchemy import ForeignKey, DateTime, Index, CheckConstraint
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from .base import Base
 from src.tyuiu_ratings.constants import (
     MIN_GPA,
     MAX_GPA,
@@ -16,20 +16,6 @@ from src.tyuiu_ratings.constants import (
     MIN_BONUS_POINTS,
     MAX_BONUS_POINTS
 )
-
-
-class Base(AsyncAttrs, DeclarativeBase):
-    __abstract__ = True
-    
-    id: Mapped[int] = mapped_column(
-        autoincrement=True,
-        primary_key=True
-    )
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), 
-        onupdate=func.now()
-    )
 
 
 class ExamOrm(Base):

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from uuid import UUID
 
-from .domain import Profile, PlaceInRating
+from .domain import Profile, Rank
 from .dto import (
     ProfileReadDTO,
     ApplicantReadDTO,
@@ -62,6 +62,9 @@ class ApplicantRepository(ABC):
     async def get_by_applicant_id(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
+    async def paginate(self, page: int, limit: int) -> list[ApplicantReadDTO]: pass
+
+    @abstractmethod
     async def paginate_by_direction(
             self,
             direction: str,
@@ -69,7 +72,13 @@ class ApplicantRepository(ABC):
             limit: int
     ) -> List[ApplicantReadDTO]: pass
 
+    @abstractmethod
+    async def count(self) -> int: pass
+
 
 class HistoryRepository(ABC):
     @abstractmethod
-    async def bulk_create(self, places: list[PlaceInRating]) -> None: pass
+    async def bulk_create(self, places: list[Rank]) -> None: pass
+
+    @abstractmethod
+    async def read(self, applicant_id: int) -> list[Rank]: pass

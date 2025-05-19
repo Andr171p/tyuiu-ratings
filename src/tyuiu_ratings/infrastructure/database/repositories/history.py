@@ -33,3 +33,16 @@ class SQLHistoryRepository(HistoryRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while creating history: {e}")
+
+    async def read(self, applicant_id: int) -> list[PlaceInRating]:
+        try:
+            stmt = (
+                select(HistoryOrm)
+                .where(HistoryOrm.applicant_id == applicant_id)
+            )
+            results = await self.session.execute(stmt)
+            places = results.scalars().all()
+            return [PlaceInRating.model_validate(place) for place in places] if places else None
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while reading history: {e}")

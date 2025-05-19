@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
@@ -86,6 +86,21 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while reading by applicant id: {e}")
 
+    async def paginate(self, page: int, limit: int) -> list[ApplicantReadDTO]:
+        try:
+            offset = (page - 1) * limit
+            stmt = (
+                select(ApplicantOrm)
+                .offset(offset)
+                .limit(limit)
+            )
+            results = await self.session.execute(stmt)
+            applicants = results.scalars().all()
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while paginating applicants: {e}")
+
     async def paginate_by_direction(
             self,
             direction: str,
@@ -106,3 +121,15 @@ class SQLApplicantRepository(ApplicantRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while paginate by direction: {e}")
+
+    async def count(self) -> int:
+        try:
+            stmt = (
+                select(func.count)
+                .select_from(ApplicantOrm)
+            )
+            count = await self.session.execute(stmt)
+            return count.scalar()
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while reading count: {e}")
