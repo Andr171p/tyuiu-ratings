@@ -6,13 +6,14 @@ if TYPE_CHECKING:
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from ..utils import (
     calculate_velocity,
     calculate_mean_velocity,
     calculate_acceleration,
-    calculate_stability
+    calculate_stability,
+    mapping_direction
 )
 from ..constants import (
     MIN_GPA,
@@ -25,7 +26,6 @@ from ..constants import (
     MAX_BONUS_POINTS,
     MIN_EXAM_POINTS,
     MAX_EXAM_POINTS,
-    AVAILABLE_DIRECTIONS,
     AVAILABLE_SUBJECTS,
     NOTIFICATION_LEVELS
 )
@@ -35,11 +35,15 @@ class Applicant(BaseModel):
     applicant_id: int  # Уникальный код абитуриента
     rating: int  # Место в рейтинге
     institute: str  # Институт
-    direction: AVAILABLE_DIRECTIONS  # Направление подготовки
+    direction: str  # Направление подготовки
     priority: int = Field(ge=MIN_PRIORITY, le=MAX_PRIORITY)  # Приоритет
     points: int = Field(ge=MIN_POINTS, le=MAX_POINTS)  # Сумма баллов ЕГЭ
     bonus_points: int = Field(ge=MIN_BONUS_POINTS, le=MAX_BONUS_POINTS)  # Дополнительные баллы
     original: bool  # Сдан оригинал
+
+    @field_validator("direction")
+    def validate_direction(cls, direction: str) -> str:
+        return mapping_direction(direction)
 
     def to_create_dto(self, probability: float) -> "ApplicantCreateDTO":
         from .dto import ApplicantCreateDTO

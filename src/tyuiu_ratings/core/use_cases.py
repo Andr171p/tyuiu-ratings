@@ -9,8 +9,6 @@ from .interfaces import (
     ProfileRepository,
     HistoryRepository
 )
-from ..utils import calculate_pages
-from ..constants import DEFAULT_LIMIT, THRESHOLD_PROBABILITY
 
 
 class RatingUpdater:
