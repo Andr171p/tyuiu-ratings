@@ -1,10 +1,12 @@
-from typing import Optional, List
+from typing import Optional, List, Protocol, Union
 
 from abc import ABC, abstractmethod
 
 from uuid import UUID
 
-from .domain import Profile, Rank, Notification
+from pydantic import BaseModel
+
+from .domain import Profile, Rank, Notification, History
 from .dto import (
     ProfileReadDTO,
     ApplicantReadDTO,
@@ -13,6 +15,7 @@ from .dto import (
     ApplicantRecommendDTO,
     RecommendedDirectionDTO
 )
+from ..constants import NOTIFICATIONS_QUEUE
 
 
 class AdmissionClassifier(ABC):
@@ -81,14 +84,19 @@ class HistoryRepository(ABC):
     async def bulk_create(self, places: list[Rank]) -> None: pass
 
     @abstractmethod
-    async def read(self, applicant_id: int) -> list[Rank]: pass
+    async def read(self, applicant_id: int) -> History: pass
 
 
-class BaseNotifier(ABC):
+class BaseNotificationFactory(ABC):
     profile_repository: "ProfileRepository"
 
     @abstractmethod
-    async def create_notification(self, applicant: ApplicantReadDTO) -> Optional[Notification]: pass
+    async def create(self, applicant: ApplicantReadDTO) -> Optional[Notification]: pass
 
-    @abstractmethod
-    async def _check_conditional(self, *args) -> bool: pass
+
+class AMQPBroker(Protocol):
+    async def publish(
+            self,
+            messages: Union[BaseModel, list[BaseModel]],
+            queue: str = NOTIFICATIONS_QUEUE
+    ) -> None: pass

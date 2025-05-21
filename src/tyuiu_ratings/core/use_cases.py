@@ -1,13 +1,33 @@
+from collections.abc import AsyncGenerator
+
+import asyncio
 from uuid import UUID
 from datetime import datetime
 
-from .domain import Applicant, Rank, Notification
+from .domain import Applicant, Rank, History
 from .dto import ApplicantPredictDTO, ApplicantReadDTO
+from ..utils import calculate_pages
 from .interfaces import (
     AdmissionClassifier,
     ApplicantRepository,
     ProfileRepository,
-    HistoryRepository
+    HistoryRepository,
+    AMQPBroker,
+    BaseNotificationFactory,
+    RecommendationSystem,
+)
+from .services import (
+    PositiveNotificationFactory,
+    WarningNotificationFactory,
+    CriticalNotificationFactory
+)
+from ..constants import (
+    DEFAULT_LIMIT,
+    THRESHOLD_VELOCITY,
+    BUDGET_PLACES_FOR_DIRECTIONS,
+    WARNING_BUDGET_ZONE_THRESHOLD,
+    POSITIVE_THRESHOLD_PROBABILITY,
+    CRITICAL_THRESHOLD_PROBABILITY
 )
 
 
@@ -75,16 +95,32 @@ class PrioritiesReranker:
         return applicants
 
 
-class NotificationSender:
+class NotificationBroadcaster:
     def __init__(
             self,
             applicant_repository: ApplicantRepository,
             profile_repository: ProfileRepository,
             history_repository: HistoryRepository,
+            recommendation_system: RecommendationSystem,
+            amqp_broker: AMQPBroker
     ) -> None:
         self._applicant_repository = applicant_repository
         self._profile_repository = profile_repository
         self._history_repository = history_repository
+        self._recommendation_system = recommendation_system
+        self._amqp_broker = amqp_broker
 
-    async def send(self) -> None:
+    async def broadcast(self) -> None:
+        async for applicants in self._iterate_applicants():
+            tasks = [self._send(applicant) for applicant in applicants]
+            await asyncio.gather(*tasks)
+
+    async def _iterate_applicants(self) -> AsyncGenerator[list[ApplicantReadDTO]]:
+        total_count = await self._applicant_repository.count()
+        pages = calculate_pages(total_count, DEFAULT_LIMIT)
+        for page in range(1, pages + 1):
+            applicants = await self._applicant_repository.paginate(page, DEFAULT_LIMIT)
+            yield applicants
+
+    async def _send(self, applicant: ApplicantReadDTO) -> None:
         ...
