@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import HistoryOrm
-from src.tyuiu_ratings.core.domain import Rank, History
+from ..models import RatingPositionOrm
+from src.tyuiu_ratings.core.domain import RatingPosition
 from src.tyuiu_ratings.core.interfaces import HistoryRepository
 
 
@@ -13,36 +13,39 @@ class SQLHistoryRepository(HistoryRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def bulk_create(self, places: list[Rank]) -> None:
+    async def bulk_create(self, rating_positions: list[RatingPosition]) -> None:
         today = datetime.today()
         try:
-            history_orms: list[HistoryOrm] = []
-            for place in places:
+            rating_position_orms: list[RatingPositionOrm] = []
+            for rating_position in rating_positions:
                 stmt = (
-                    select(HistoryOrm)
+                    select(RatingPositionOrm)
                     .where(
-                        HistoryOrm.applicant_id == place.applicant_id,
-                        HistoryOrm.date == today
+                        RatingPositionOrm.applicant_id == rating_position.applicant_id,
+                        RatingPositionOrm.date == today
                     )
                 )
                 existing = await self.session.execute(stmt)
                 if not existing:
-                    history_orms.append(HistoryOrm(**place.model_dump()))
-                self.session.add_all(history_orms)
+                    rating_position_orms.append(RatingPositionOrm(**rating_position.model_dump()))
+                self.session.add_all(rating_position_orms)
                 await self.session.commit()
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while creating history: {e}")
 
-    async def read(self, applicant_id: int) -> History:
+    async def read(self, applicant_id: int) -> list[RatingPosition]:
         try:
             stmt = (
-                select(HistoryOrm)
-                .where(HistoryOrm.applicant_id == applicant_id)
+                select(RatingPositionOrm)
+                .where(RatingPositionOrm.applicant_id == applicant_id)
             )
             results = await self.session.execute(stmt)
-            places = results.scalars().all()
-            return [Rank.model_validate(place) for place in places] if places else None
+            rating_positions = results.scalars().all()
+            return [
+                RatingPosition.model_validate(rating_position)
+                for rating_position in rating_positions
+            ] if rating_positions else None
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading history: {e}")

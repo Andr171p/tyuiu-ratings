@@ -52,7 +52,6 @@ class ProfileOrm(Base):
     exams: Mapped[list["ExamOrm"]] = relationship(back_populates="profile")
     
     applicants: Mapped[list["ApplicantOrm"]] = relationship(back_populates="profile")
-    history: Mapped[list["HistoryOrm"]] = relationship(back_populates="profile")
 
     __table_args__ = (
         Index("id_index", "user_id", "applicant_id"),
@@ -77,6 +76,7 @@ class ApplicantOrm(Base):
     original: Mapped[bool]
     
     profile: Mapped["ProfileOrm"] = relationship(back_populates="applicants")
+    rating_positions: Mapped[list["RatingPositionOrm"]] = relationship(back_populates="applicant")
 
     __table_args__ = (
         Index("direction_index", "direction"),
@@ -91,8 +91,8 @@ class ApplicantOrm(Base):
     )
     
     
-class HistoryOrm(Base):
-    __tablename__ = "ratings_history"
+class RatingPositionOrm(Base):
+    __tablename__ = "history"
     
     applicant_id: Mapped[int] = mapped_column(
         ForeignKey("profiles.applicant_id"),
@@ -102,5 +102,5 @@ class HistoryOrm(Base):
     rating: Mapped[int]
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.today)
     
-    applicant: Mapped["ApplicantOrm"] = relationship(back_populates="history")
+    applicant: Mapped["ApplicantOrm"] = relationship(back_populates="rating_positions")
     

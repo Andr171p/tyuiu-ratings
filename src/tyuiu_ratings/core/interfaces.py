@@ -6,7 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from .domain import Profile, Rank, Notification, History
+from .domain import Profile, RatingPosition, Notification
 from .dto import (
     ProfileReadDTO,
     ApplicantReadDTO,
@@ -76,22 +76,23 @@ class ApplicantRepository(ABC):
     ) -> List[ApplicantReadDTO]: pass
 
     @abstractmethod
+    async def sort_by_probability(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
+
+    @abstractmethod
     async def count(self) -> int: pass
 
 
 class HistoryRepository(ABC):
     @abstractmethod
-    async def bulk_create(self, places: list[Rank]) -> None: pass
+    async def bulk_create(self, rating_position: list[RatingPosition]) -> None: pass
 
     @abstractmethod
-    async def read(self, applicant_id: int) -> History: pass
+    async def read(self, applicant_id: int) -> list[RatingPosition]: pass
 
 
-class BaseNotificationFactory(ABC):
-    profile_repository: "ProfileRepository"
-
+class BaseNotificationSender(ABC):
     @abstractmethod
-    async def create(self, applicant: ApplicantReadDTO) -> Optional[Notification]: pass
+    async def send(self, user_id: UUID, applicant: ApplicantReadDTO) -> None: pass
 
 
 class AMQPBroker(Protocol):

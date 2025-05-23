@@ -66,15 +66,15 @@ class Rating(BaseModel):
     rating: list[Applicant]
 
 
-class Rank(BaseModel):
+class RatingPosition(BaseModel):
     applicant_id: int
     rating: int
     date: datetime
 
 
-class History(BaseModel):
+class RatingHistory(BaseModel):
     applicant_id: int
-    history: list[Rank]
+    history: list[RatingPosition]
 
     @property
     def velocity(self) -> list[float]:

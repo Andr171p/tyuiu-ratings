@@ -4,7 +4,7 @@ import asyncio
 from uuid import UUID
 from datetime import datetime
 
-from .domain import Applicant, Rank, History
+from .domain import Applicant, RatingPosition, RatingHistory
 from .dto import ApplicantPredictDTO, ApplicantReadDTO
 from ..utils import calculate_pages
 from .interfaces import (
@@ -13,13 +13,7 @@ from .interfaces import (
     ProfileRepository,
     HistoryRepository,
     AMQPBroker,
-    BaseNotificationFactory,
     RecommendationSystem,
-)
-from .services import (
-    PositiveNotificationFactory,
-    WarningNotificationFactory,
-    CriticalNotificationFactory
 )
 from ..constants import (
     DEFAULT_LIMIT,
@@ -45,7 +39,7 @@ class RatingUpdater:
     async def update(self, applicants: list[Applicant]) -> None:
         probabilities = await self._predict_probabilities(applicants)
         await self._update_applicants(applicants, probabilities)
-        await self._update_history(applicants)
+        await self._update_rating_history(applicants)
 
     async def _predict_probabilities(self, applicants: list[Applicant]) -> list[float]:
         applicants_dto = [
@@ -66,9 +60,9 @@ class RatingUpdater:
         ]
         await self._applicant_repository.bulk_create(applicants_dto)
 
-    async def _update_history(self, applicants: list[Applicant]) -> None:
+    async def _update_rating_history(self, applicants: list[Applicant]) -> None:
         await self._history_repository.bulk_create([
-            Rank(
+            RatingPosition(
                 applicant_id=applicant.applicant_id,
                 rating=applicant.rating,
                 date=datetime.today()
@@ -88,10 +82,7 @@ class PrioritiesReranker:
 
     async def rerank(self, user_id: UUID) -> list[ApplicantReadDTO]:
         profile = await self._profile_repository.read(user_id)
-        applicants = await self._applicant_repository.get_by_applicant_id(profile.applicant_id)
-        applicants.sort(key=lambda appl: appl.probability, reverse=True)
-        for priority, applicant in enumerate(applicants, start=1):
-            applicant.priority = priority
+        applicants = await self._applicant_repository.sort_by_probability(profile.applicant_id)
         return applicants
 
 
@@ -102,13 +93,13 @@ class NotificationBroadcaster:
             profile_repository: ProfileRepository,
             history_repository: HistoryRepository,
             recommendation_system: RecommendationSystem,
-            amqp_broker: AMQPBroker
+            broker: AMQPBroker
     ) -> None:
         self._applicant_repository = applicant_repository
         self._profile_repository = profile_repository
         self._history_repository = history_repository
         self._recommendation_system = recommendation_system
-        self._amqp_broker = amqp_broker
+        self._broker = broker
 
     async def broadcast(self) -> None:
         async for applicants in self._iterate_applicants():
