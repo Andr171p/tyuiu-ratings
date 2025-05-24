@@ -4,7 +4,7 @@ from fastapi import APIRouter, status, HTTPException
 
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
-from src.tyuiu_ratings.core.entities import Profile
+from src.tyuiu_ratings.core.domain import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
 

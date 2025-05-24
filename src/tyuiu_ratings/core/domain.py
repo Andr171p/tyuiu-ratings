@@ -61,6 +61,7 @@ class Applicant(BaseModel):
 
 
 class Rating(BaseModel):
+    applicant_id: int
     institute: str
     direction: str
     rating: list[Applicant]

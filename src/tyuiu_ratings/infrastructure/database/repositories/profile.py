@@ -1,12 +1,13 @@
+from typing import Optional
+
 from uuid import UUID
-from typing import List, Optional
 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import ProfileOrm
-from src.tyuiu_ratings.core.entities import Profile
+from src.tyuiu_ratings.core.domain import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
 
