@@ -1,28 +1,22 @@
+from typing import Optional
 from collections.abc import AsyncGenerator
 
 import asyncio
 from uuid import UUID
 from datetime import datetime
 
-from .domain import Applicant, RatingPosition, RatingHistory
 from .dto import ApplicantPredictDTO, ApplicantReadDTO
-from ..utils import calculate_pages
+from .domain import Applicant, RatingPosition, RatingHistory, Notification
+from .services import NotificationMaker
 from .interfaces import (
     AdmissionClassifier,
     ApplicantRepository,
     ProfileRepository,
     HistoryRepository,
     AMQPBroker,
-    RecommendationSystem,
 )
-from ..constants import (
-    DEFAULT_LIMIT,
-    THRESHOLD_VELOCITY,
-    BUDGET_PLACES_FOR_DIRECTIONS,
-    WARNING_BUDGET_ZONE_THRESHOLD,
-    POSITIVE_THRESHOLD_PROBABILITY,
-    CRITICAL_THRESHOLD_PROBABILITY
-)
+from ..utils import calculate_pages
+from ..constants import DEFAULT_LIMIT
 
 
 class RatingUpdater:
@@ -90,15 +84,13 @@ class NotificationBroadcaster:
     def __init__(
             self,
             applicant_repository: ApplicantRepository,
-            profile_repository: ProfileRepository,
             history_repository: HistoryRepository,
-            recommendation_system: RecommendationSystem,
+            notification_maker: NotificationMaker,
             broker: AMQPBroker
     ) -> None:
         self._applicant_repository = applicant_repository
-        self._profile_repository = profile_repository
         self._history_repository = history_repository
-        self._recommendation_system = recommendation_system
+        self._notification_maker = notification_maker
         self._broker = broker
 
     async def broadcast(self) -> None:
@@ -113,5 +105,15 @@ class NotificationBroadcaster:
             applicants = await self._applicant_repository.paginate(page, DEFAULT_LIMIT)
             yield applicants
 
+    async def _prepare_notification(self, applicant: ApplicantReadDTO) -> Optional[Notification]:
+        history = await self._history_repository.read(
+            applicant_id=applicant.applicant_id,
+            direction=applicant.direction
+        )
+        rating_history = RatingHistory(applicant_id=applicant.applicant_id, history=history)
+        notification = await self._notification_maker.create(applicant, rating_history)
+        return notification
+
     async def _send(self, applicant: ApplicantReadDTO) -> None:
-        ...
+        notification = await self._prepare_notification(applicant)
+        await self._broker.publish(notification)

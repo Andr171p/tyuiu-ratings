@@ -1,7 +1,7 @@
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .core.domain import Rank
+    from .core.domain import RatingPosition
 
 import pandas as pd
 
@@ -13,21 +13,21 @@ def calculate_pages(total_count: int, limit: int) -> int:
     return pages
 
 
-def calculate_velocity(history: list["Rank"]) -> list[float]:
+def calculate_velocity(history: list["RatingPosition"]) -> list[float]:
     df = pd.DataFrame([rank.model_dump() for rank in history])
     df.set_index("date", inplace=True)
     df["rating_change"] = df["rating"].diff().fillna(0)
     return -df["rating_change"].to_list()
 
 
-def calculate_mean_velocity(history: list["Rank"]) -> float:
+def calculate_mean_velocity(history: list["RatingPosition"]) -> float:
     df = pd.DataFrame([rank.model_dump() for rank in history])
     df.set_index("date", inplace=True)
     df["rating_change"] = df["rating"].diff().fillna(0)
     return -df["rating_change"].mean()
 
 
-def calculate_acceleration(history: list["Rank"]) -> list[float]:
+def calculate_acceleration(history: list["RatingPosition"]) -> list[float]:
     df = pd.DataFrame([rank.model_dump() for rank in history])
     df.set_index("date", inplace=True)
     df["rating_change"] = df["rating"].diff().fillna(0)
@@ -35,10 +35,21 @@ def calculate_acceleration(history: list["Rank"]) -> list[float]:
     return df["acceleration"].fillna(0).to_list()
 
 
-def calculate_stability(history: list["Rank"]) -> float:
+def calculate_stability(history: list["RatingPosition"]) -> float:
     df = pd.DataFrame([rank.model_dump() for rank in history])
     df.set_index("date", inplace=True)
     return df["rating"].std()
+
+
+def is_rating_stable(history: list["RatingPosition"], days_count: int, max_change: int) -> bool:
+    df = pd.DataFrame([rank.model_dump() for rank in history])
+    df.set_index("date", inplace=True)
+    cutoff_date = df.index.max() - pd.Timedelta(days=days_count)
+    last_days = df[df.index >= cutoff_date]
+    if len(last_days) < 2:
+        return True
+    changes = last_days["rating"].diff().abs().dropna()
+    return changes.max() <= max_change
 
 
 def mapping_direction(direction: str) -> Optional[str]:

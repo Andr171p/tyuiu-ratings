@@ -95,10 +95,15 @@ class RatingPositionOrm(Base):
     __tablename__ = "history"
     
     applicant_id: Mapped[int] = mapped_column(
-        ForeignKey("profiles.applicant_id"),
+        ForeignKey("applicants.applicant_id"),
         unique=False,
         nullable=False
-    )   
+    )
+    direction: Mapped[str] = mapped_column(
+        ForeignKey("applicants.direction"),
+        unique=False,
+        nullable=False
+    )
     rating: Mapped[int]
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.today)
     

@@ -34,11 +34,14 @@ class SQLHistoryRepository(HistoryRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while creating history: {e}")
 
-    async def read(self, applicant_id: int) -> list[RatingPosition]:
+    async def read(self, applicant_id: int, direction: str) -> list[RatingPosition]:
         try:
             stmt = (
                 select(RatingPositionOrm)
-                .where(RatingPositionOrm.applicant_id == applicant_id)
+                .where(
+                    RatingPositionOrm.applicant_id == applicant_id,
+                    RatingPositionOrm.direction == direction
+                )
             )
             results = await self.session.execute(stmt)
             rating_positions = results.scalars().all()

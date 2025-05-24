@@ -77,3 +77,8 @@ WARNING_BUDGET_ZONE_THRESHOLD = 5
 
 # Rabbit-MQ очереди:
 NOTIFICATIONS_QUEUE = "telegram.notifications"
+
+# Значения для отправки уведомлений абитуриентам:
+DAYS_COUNT = 10  # Количество дней для проверки стабильности рейтинга
+MAX_CHANGE = 5  # Максимальное изменение в рейтинге за определённое количество дней
+TOP_RATING = 10
