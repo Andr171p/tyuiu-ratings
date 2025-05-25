@@ -5,7 +5,7 @@ import asyncio
 from uuid import UUID
 from datetime import datetime
 
-from .dto import ApplicantPredictDTO, ApplicantReadDTO
+from .dto import ApplicantPredictDTO, ApplicantReadDTO, RerankedPriorityDTO
 from .domain import (
     Applicant,
     RatingPosition,
@@ -100,10 +100,17 @@ class PrioritiesReranker:
         self._applicant_repository = applicant_repository
         self._profile_repository = profile_repository
 
-    async def rerank(self, user_id: UUID) -> list[ApplicantReadDTO]:
+    async def rerank(self, user_id: UUID) -> list[RerankedPriorityDTO]:
         profile = await self._profile_repository.read(user_id)
         applicants = await self._applicant_repository.sort_by_probability(profile.applicant_id)
-        return applicants
+        return [
+            RerankedPriorityDTO(
+                priority=applicant.priority,
+                direction=applicant.direction,
+                probability=applicant.probability
+            )
+            for applicant in applicants
+        ]
 
 
 class NotificationBroadcaster:

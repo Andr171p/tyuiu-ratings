@@ -13,7 +13,7 @@ from .dto import (
     ApplicantCreateDTO,
     ApplicantPredictDTO,
     ApplicantRecommendDTO,
-    RecommendedDirectionDTO
+    RecommendationDTO
 )
 from ..constants import NOTIFICATIONS_QUEUE
 
@@ -28,7 +28,7 @@ class AdmissionClassifier(ABC):
 
 class RecommendationSystem(ABC):
     @abstractmethod
-    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendedDirectionDTO]]: pass
+    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendationDTO]]: pass
 
 
 class ProfileRepository(ABC):

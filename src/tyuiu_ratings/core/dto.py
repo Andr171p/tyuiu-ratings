@@ -46,6 +46,12 @@ class ApplicantRecommendDTO(BaseModel):
     exams: list[Exam]
 
 
-class RecommendedDirectionDTO(BaseModel):
+class RecommendationDTO(BaseModel):
     direction_id: int
-    name: str
+    direction: str
+
+
+class RerankedPriorityDTO(BaseModel):
+    priority: int
+    direction: str
+    probability: float
