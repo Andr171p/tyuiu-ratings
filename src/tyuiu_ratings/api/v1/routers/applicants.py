@@ -5,8 +5,6 @@ from fastapi import APIRouter, status
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.use_cases import PrioritiesReranker
-from src.tyuiu_ratings.core.interfaces import ApplicantRepository
-from src.tyuiu_ratings.core.dto import ApplicantReadDTO
 from ..schemas import RerankedPrioritiesResponse
 
 
@@ -18,7 +16,7 @@ applicants_router = APIRouter(
 
 
 @applicants_router.get(
-    path="/{user_id}/rerank-priorities",
+    path="/{user_id}/reranked-priorities",
     status_code=status.HTTP_200_OK,
     response_model=RerankedPrioritiesResponse
 )
@@ -31,7 +29,7 @@ async def rerank_priorities(
 
 
 @applicants_router.get(
-    path="/{user_id}/recommend",
+    path="/{user_id}/recommendations",
     status_code=status.HTTP_200_OK,
     response_model=...
 )

@@ -23,7 +23,7 @@ from .dto import (
 from ..constants import NOTIFICATIONS_QUEUE
 
 
-class AdmissionClassifierService(ABC):
+class ClassifierService(ABC):
     @abstractmethod
     async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]: pass
 
@@ -31,7 +31,7 @@ class AdmissionClassifierService(ABC):
     async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> Optional[list[float]]: pass
 
 
-class RecommendationSystemService(ABC):
+class RecommendationService(ABC):
     @abstractmethod
     async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendationDTO]]: pass
 
@@ -56,6 +56,9 @@ class ProfileRepository(ABC):
 
     @abstractmethod
     async def get_by_applicant_id(self, applicant_id: int) -> Optional[ProfileReadDTO]: pass
+
+    @abstractmethod
+    async def get_applicants(self, user_id: UUID) -> list[Optional[ApplicantReadDTO]]: pass
 
 
 class ApplicantRepository(ABC):

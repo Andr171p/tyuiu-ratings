@@ -7,6 +7,7 @@ from dishka.integrations.fastapi import FromDishka, DishkaRoute
 from src.tyuiu_ratings.core.domain import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
+from ..schemas import ApplicantsResponse
 
 
 profiles_router = APIRouter(
@@ -41,6 +42,21 @@ async def get_profile(
     if not profile:
         raise HTTPException(status_code=404, detail=f"Profile not found")
     return profile
+
+
+@profiles_router.get(
+    path="/{user_id}/applicants",
+    status_code=status.HTTP_200_OK,
+    response_model=ApplicantsResponse
+)
+async def get_applicants(
+        user_id: UUID,
+        profile_repository: FromDishka[ProfileRepository]
+) -> ApplicantsResponse:
+    applicants = await profile_repository.get_applicants(user_id)
+    if not applicants:
+        raise HTTPException(status_code=404, detail="Applicants not found")
+    return ApplicantsResponse(applicants=applicants)
 
 
 @profiles_router.put(

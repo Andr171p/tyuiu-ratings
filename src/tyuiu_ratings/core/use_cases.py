@@ -15,7 +15,8 @@ from .domain import (
 )
 from .services import NotificationMaker
 from .interfaces import (
-    AdmissionClassifier,
+    RecommendationService,
+    ClassifierService,
     ApplicantRepository,
     ProfileRepository,
     HistoryRepository,
@@ -28,11 +29,11 @@ from ..constants import DEFAULT_LIMIT, AVAILABLE_DIRECTIONS
 class RatingUpdater:
     def __init__(
             self,
-            admission_classifier: AdmissionClassifier,
+            classifier_service: ClassifierService,
             applicant_repository: ApplicantRepository,
             history_repository: HistoryRepository
     ) -> None:
-        self._admission_classifier = admission_classifier
+        self._classifier_service = classifier_service
         self._applicant_repository = applicant_repository
         self._history_repository = history_repository
 
@@ -46,7 +47,7 @@ class RatingUpdater:
             ApplicantPredictDTO(points=applicant.points, direction=applicant.direction)
             for applicant in applicants
         ]
-        probabilities = await self._admission_classifier.predict_batch(applicants_dto)
+        probabilities = await self._classifier_service.predict_batch(applicants_dto)
         return probabilities
 
     async def _update_applicants(
@@ -150,3 +151,18 @@ class NotificationBroadcaster:
     async def _send(self, applicant: ApplicantReadDTO) -> None:
         notification = await self._prepare_notification(applicant)
         await self._broker.publish(notification)
+
+
+class DirectionRecommender:
+    def __init__(
+            self,
+            applicant_repository: ApplicantRepository,
+            classifier_service: ClassifierService,
+            recommendation_service: RecommendationService
+    ) -> None:
+        self._applicant_repository = applicant_repository
+        self._classifier_service = classifier_service
+        self._recommendation_service = recommendation_service
+
+    async def recommend(self, ) -> ...:
+        ...

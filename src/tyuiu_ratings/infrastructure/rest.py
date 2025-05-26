@@ -12,13 +12,13 @@ from ..core.dto import (
     RecommendationDTO
 )
 from ..core.interfaces import (
-    AdmissionClassifierService,
-    RecommendationSystemService,
+    ClassifierService,
+    RecommendationService,
     TelegramUserService
 )
 
 
-class AdmissionClassifierAPI(AdmissionClassifierService):
+class ClassifierAPI(ClassifierService):
     def __init__(self, base_url: str) -> None:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.base_url = base_url
@@ -55,7 +55,7 @@ class AdmissionClassifierAPI(AdmissionClassifierService):
             self.logger.error("Error while predict batch: %s", e)
 
 
-class RecommendationSystemAPI(RecommendationSystemService):
+class RecommendationAPI(RecommendationService):
     def __init__(self, base_url: str) -> None:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.base_url = base_url
