@@ -2,13 +2,14 @@ from typing import Optional
 
 from uuid import UUID
 
+from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import ProfileOrm
 from src.tyuiu_ratings.core.domain import Profile
-from src.tyuiu_ratings.core.dto import ProfileReadDTO
+from src.tyuiu_ratings.core.dto import ProfileReadDTO, ApplicantReadDTO
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
 
 
@@ -81,3 +82,19 @@ class SQLProfileRepository(ProfileRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading by applicant_id: {e}")
+
+    async def get_applicants(self, user_id: UUID) -> list[Optional[ApplicantReadDTO]]:
+        try:
+            stmt = (
+                select(ProfileOrm.applicants)
+                .where(ProfileOrm.user_id == user_id)
+                .options(
+                    selectinload(ProfileOrm.applicants)
+                )
+            )
+            results = await self.session.execute(stmt)
+            applicants = results.scalars().all()
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while reading applicants: {e}")

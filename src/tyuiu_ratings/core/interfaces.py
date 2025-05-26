@@ -1,4 +1,4 @@
-from typing import Optional, List, Protocol, Union
+from typing import Optional, Protocol, Union
 
 from abc import ABC, abstractmethod
 
@@ -6,7 +6,12 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from .domain import Profile, RatingPosition, RatingHistory
+from .domain import (
+    Profile,
+    RatingPosition,
+    RatingHistory,
+    Notification
+)
 from .dto import (
     ProfileReadDTO,
     ApplicantReadDTO,
@@ -18,7 +23,7 @@ from .dto import (
 from ..constants import NOTIFICATIONS_QUEUE
 
 
-class AdmissionClassifier(ABC):
+class AdmissionClassifierService(ABC):
     @abstractmethod
     async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]: pass
 
@@ -26,9 +31,14 @@ class AdmissionClassifier(ABC):
     async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> Optional[list[float]]: pass
 
 
-class RecommendationSystem(ABC):
+class RecommendationSystemService(ABC):
     @abstractmethod
     async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendationDTO]]: pass
+
+
+class TelegramUserService(ABC):
+    @abstractmethod
+    async def get_notifications(self, user_id: UUID) -> Optional[list[Notification]]: pass
 
 
 class ProfileRepository(ABC):
@@ -73,7 +83,7 @@ class ApplicantRepository(ABC):
             direction: str,
             page: int,
             limit: int
-    ) -> List[ApplicantReadDTO]: pass
+    ) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
     async def sort_by_probability(self, applicant_id: int) -> list[ApplicantReadDTO]: pass

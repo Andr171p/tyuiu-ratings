@@ -2,15 +2,16 @@ import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
-from .constants import BASE_DIR, ENV_PATH
+from .constants import ENV_PATH
 
 
 load_dotenv(ENV_PATH)
 
 
-class MicroServicesSettings(BaseSettings):
-    BINARY_CLASSIFIER_URL: str = os.getenv("TYUIU_BINARY_CLASSIFIER_URL")
+class APISettings(BaseSettings):
+    CLASSIFIER_URL: str = os.getenv("CLASSIFIER_URL")
+    REC_SYS: str = os.getenv("REC_SYS_URL")
 
 
 class Settings(BaseSettings):
-    micro_services: MicroServicesSettings = MicroServicesSettings()
+    api: APISettings = APISettings()

@@ -5,7 +5,8 @@ from fastapi import APIRouter, status
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.use_cases import PrioritiesReranker
-from src.tyuiu_ratings.core.dto import RecommendationsDTO
+from src.tyuiu_ratings.core.interfaces import ApplicantRepository
+from src.tyuiu_ratings.core.dto import ApplicantReadDTO
 from ..schemas import RerankedPrioritiesResponse
 
 
