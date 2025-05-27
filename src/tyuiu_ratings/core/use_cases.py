@@ -28,7 +28,7 @@ from .interfaces import (
     ClassifierService,
     ApplicantRepository,
     ProfileRepository,
-    HistoryRepository,
+    RatingPositionRepository,
     AMQPBroker,
 )
 from .services import NotificationMaker, get_rating_status
@@ -41,11 +41,11 @@ class RatingUpdater:
             self,
             classifier_service: ClassifierService,
             applicant_repository: ApplicantRepository,
-            history_repository: HistoryRepository
+            rating_position_repository: RatingPositionRepository
     ) -> None:
         self._classifier_service = classifier_service
         self._applicant_repository = applicant_repository
-        self._history_repository = history_repository
+        self._rating_position_repository = rating_position_repository
 
     async def update(self, applicants: list[Applicant]) -> None:
         predictions = await self._get_predictions(applicants)
@@ -72,7 +72,7 @@ class RatingUpdater:
         await self._applicant_repository.bulk_create(applicants_dto)
 
     async def _update_rating_history(self, applicants: list[Applicant]) -> None:
-        await self._history_repository.bulk_create([
+        await self._rating_position_repository.bulk_create([
             RatingPositionCreateDTO(
                 applicant_id=applicant.applicant_id,
                 rating=applicant.rating,
@@ -128,12 +128,12 @@ class NotificationBroadcaster:
     def __init__(
             self,
             applicant_repository: ApplicantRepository,
-            history_repository: HistoryRepository,
+            rating_position_repository: RatingPositionRepository,
             notification_maker: NotificationMaker,
             broker: AMQPBroker
     ) -> None:
         self._applicant_repository = applicant_repository
-        self._history_repository = history_repository
+        self._rating_position_repository = rating_position_repository
         self._notification_maker = notification_maker
         self._broker = broker
 
@@ -150,11 +150,11 @@ class NotificationBroadcaster:
             yield applicants
 
     async def _prepare_notification(self, applicant: ApplicantReadDTO) -> Optional[Notification]:
-        history = await self._history_repository.read(
+        positions = await self._rating_position_repository.read(
             applicant_id=applicant.applicant_id,
             direction=applicant.direction
         )
-        rating_history = RatingHistory(positions=history)
+        rating_history = RatingHistory(positions=positions)
         notification = await self._notification_maker.create(applicant, rating_history)
         return notification
 
@@ -261,20 +261,20 @@ class DirectionRecommender:
         return filtered
 
 
-class RatingHistoryReader:
+class RatingHistoryService:
     def __init__(
             self,
             profile_repository: ProfileRepository,
-            history_repository: HistoryRepository
+            rating_position_repository: RatingPositionRepository
     ) -> None:
         self._profile_repository = profile_repository
-        self._history_repository = history_repository
+        self._rating_position_repository = rating_position_repository
 
-    async def read(self, user_id: UUID) -> list[ApplicantRatingHistoryDTO]:
+    async def get_rating_histories(self, user_id: UUID) -> list[ApplicantRatingHistoryDTO]:
         applicants = await self._profile_repository.get_applicants(user_id)
         histories: list[ApplicantRatingHistoryDTO] = []
         for applicant in applicants:
-            positions = await self._history_repository.read(
+            positions = await self._rating_position_repository.read(
                 applicant_id=applicant.applicant_id,
                 direction=applicant.direction
             )

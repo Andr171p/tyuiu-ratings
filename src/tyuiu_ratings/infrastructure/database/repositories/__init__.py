@@ -6,4 +6,4 @@ __all__ = (
 
 from .profile import SQLProfileRepository
 from .applicant import SQLApplicantRepository
-from .history import SQLRatingPositionRepository
+from .rating_position import SQLRatingPositionRepository

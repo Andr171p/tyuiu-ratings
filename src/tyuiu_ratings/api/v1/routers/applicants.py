@@ -5,8 +5,17 @@ from fastapi import APIRouter, status, HTTPException
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.domain import Rating
-from src.tyuiu_ratings.core.dto import RerankedPriorityDTO, PredictedRecommendationDTO
-from src.tyuiu_ratings.core.use_cases import PrioritiesReranker, RatingReader, DirectionRecommender
+from src.tyuiu_ratings.core.dto import (
+    RerankedPriorityDTO,
+    PredictedRecommendationDTO,
+    ApplicantRatingHistoryDTO
+)
+from src.tyuiu_ratings.core.use_cases import (
+    PrioritiesReranker,
+    RatingReader,
+    DirectionRecommender,
+    RatingHistoryService
+)
 from ..schemas import DirectionQuery, TopNQuery
 
 
@@ -63,9 +72,13 @@ async def get_recommendations(
 @applicants_router.get(
     path="/{user_id}/rating-history",
     status_code=status.HTTP_200_OK,
-    response_model=...
+    response_model=list[ApplicantRatingHistoryDTO]
 )
 async def get_rating_histories(
         user_id: UUID,
-) -> ...:
-    ...
+        rating_history_service: FromDishka[RatingHistoryService]
+) -> list[ApplicantRatingHistoryDTO]:
+    rating_histories = await rating_history_service.get_rating_histories(user_id)
+    if not rating_histories:
+        raise HTTPException(status_code=404, detail="Rating history not found")
+    return rating_histories

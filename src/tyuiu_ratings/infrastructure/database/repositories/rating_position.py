@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import RatingPositionOrm
 from src.tyuiu_ratings.core.domain import RatingPosition
-from src.tyuiu_ratings.core.interfaces import HistoryRepository
+from src.tyuiu_ratings.core.interfaces import RatingPositionRepository
 
 
-class SQLHistoryRepository(HistoryRepository):
+class SQLRatingPositionRepository(RatingPositionRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 

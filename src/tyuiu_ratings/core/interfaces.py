@@ -110,7 +110,7 @@ class ApplicantRepository(ABC):
     async def count(self) -> int: pass
 
 
-class HistoryRepository(ABC):
+class RatingPositionRepository(ABC):
     @abstractmethod
     async def bulk_create(self, rating_position: list[RatingPositionCreateDTO]) -> None: pass
 
