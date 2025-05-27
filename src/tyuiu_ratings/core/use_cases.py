@@ -10,7 +10,8 @@ from .dto import (
     ApplicantReadDTO,
     RerankedPriorityDTO,
     ApplicantRecommendDTO,
-    RecommendationDTO
+    RecommendationDTO,
+    PredictionDTO
 )
 from .domain import (
     Applicant,
@@ -44,26 +45,26 @@ class RatingUpdater:
         self._history_repository = history_repository
 
     async def update(self, applicants: list[Applicant]) -> None:
-        probabilities = await self._predict_probabilities(applicants)
-        await self._update_applicants(applicants, probabilities)
+        predictions = await self._get_predictions(applicants)
+        await self._update_applicants(applicants, predictions)
         await self._update_rating_history(applicants)
 
-    async def _predict_probabilities(self, applicants: list[Applicant]) -> list[float]:
+    async def _get_predictions(self, applicants: list[Applicant]) -> list[PredictionDTO]:
         applicant_dtos = [
             ApplicantPredictDTO(points=applicant.points, direction=applicant.direction)
             for applicant in applicants
         ]
-        probabilities = await self._classifier_service.predict_batch(applicant_dtos)
-        return probabilities
+        predictions = await self._classifier_service.predict_batch(applicant_dtos)
+        return predictions
 
     async def _update_applicants(
             self,
             applicants: list[Applicant],
-            probabilities: list[float]
+            predictions: list[PredictionDTO]
     ) -> None:
         applicants_dto = [
-            applicant.to_create_dto(probability)
-            for applicant, probability in zip(applicants, probabilities)
+            applicant.to_create_dto(prediction.probability)
+            for applicant, prediction in zip(applicants, predictions)
         ]
         await self._applicant_repository.bulk_create(applicants_dto)
 
@@ -187,9 +188,14 @@ class DirectionRecommender:
         recommendations = await self._recommendation_service.recommend(applicant_dto)
         return recommendations
 
-    async def _predict_probabilities(self, points: int, recommendations: list[RecommendationDTO]) -> ...:
+    async def _get_predictions(
+            self,
+            points: int,
+            recommendations: list[RecommendationDTO]
+    ) -> list[PredictionDTO]:
         applicant_dtos = [
             ApplicantPredictDTO(points=points, direction=recommendation.direction)
             for recommendation in recommendations
         ]
-        probabilities = await self._classifier_service.predict_batch(applicant_dtos)
+        predictions = await self._classifier_service.predict_batch(applicant_dtos)
+        return predictions
