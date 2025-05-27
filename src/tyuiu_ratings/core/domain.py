@@ -68,30 +68,28 @@ class Rating(BaseModel):
 
 
 class RatingPosition(BaseModel):
-    applicant_id: int
     rating: int
     date: datetime
 
 
 class RatingHistory(BaseModel):
-    applicant_id: int
-    history: list[RatingPosition]
+    positions: list[RatingPosition]
 
     @property
     def velocity(self) -> list[float]:
-        return calculate_velocity(self.history)
+        return calculate_velocity(self.positions)
 
     @property
     def mean_velocity(self) -> float:
-        return calculate_mean_velocity(self.history)
+        return calculate_mean_velocity(self.positions)
 
     @property
     def acceleration(self) -> list[float]:
-        return calculate_acceleration(self.history)
+        return calculate_acceleration(self.positions)
 
     @property
     def stability(self) -> float:
-        return calculate_stability(self.history)
+        return calculate_stability(self.positions)
 
 
 class Exam(BaseModel):

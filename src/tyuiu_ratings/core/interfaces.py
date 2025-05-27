@@ -19,7 +19,8 @@ from .dto import (
     ApplicantPredictDTO,
     ApplicantRecommendDTO,
     RecommendationDTO,
-    PredictionDTO
+    PredictionDTO,
+    RatingPositionCreateDTO
 )
 from ..constants import NOTIFICATIONS_QUEUE
 
@@ -111,7 +112,7 @@ class ApplicantRepository(ABC):
 
 class HistoryRepository(ABC):
     @abstractmethod
-    async def bulk_create(self, rating_position: list[RatingPosition]) -> None: pass
+    async def bulk_create(self, rating_position: list[RatingPositionCreateDTO]) -> None: pass
 
     @abstractmethod
     async def read(self, applicant_id: int, direction: str) -> list[RatingPosition]: pass

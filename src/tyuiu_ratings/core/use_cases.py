@@ -12,17 +12,17 @@ from .dto import (
     ApplicantRecommendDTO,
     RecommendationDTO,
     PredictionDTO,
-    PredictedRecommendationDTO
+    PredictedRecommendationDTO,
+    RatingPositionCreateDTO,
+    RatingHistoryReadDTO
 )
 from .domain import (
     Applicant,
-    RatingPosition,
     RatingHistory,
     Notification,
     Rating,
     Profile
 )
-from .services import NotificationMaker
 from .interfaces import (
     RecommendationService,
     ClassifierService,
@@ -31,7 +31,8 @@ from .interfaces import (
     HistoryRepository,
     AMQPBroker,
 )
-from ..utils import calculate_pages
+from .services import NotificationMaker
+from ..utils import calculate_pages, calculate_velocity
 from ..constants import DEFAULT_LIMIT, AVAILABLE_DIRECTIONS
 
 
@@ -72,7 +73,7 @@ class RatingUpdater:
 
     async def _update_rating_history(self, applicants: list[Applicant]) -> None:
         await self._history_repository.bulk_create([
-            RatingPosition(
+            RatingPositionCreateDTO(
                 applicant_id=applicant.applicant_id,
                 rating=applicant.rating,
                 date=datetime.today()
@@ -153,7 +154,7 @@ class NotificationBroadcaster:
             applicant_id=applicant.applicant_id,
             direction=applicant.direction
         )
-        rating_history = RatingHistory(applicant_id=applicant.applicant_id, history=history)
+        rating_history = RatingHistory(positions=history)
         notification = await self._notification_maker.create(applicant, rating_history)
         return notification
 
@@ -258,3 +259,31 @@ class DirectionRecommender:
                 predicted_recommendation.status = "BETTER"
                 filtered.append(predicted_recommendation)
         return filtered
+
+
+class RatingHistoryReader:
+    def __init__(
+            self,
+            profile_repository: ProfileRepository,
+            history_repository: HistoryRepository
+    ) -> None:
+        self._profile_repository = profile_repository
+        self._history_repository = history_repository
+
+    async def read(self, user_id: UUID) -> list[RatingHistoryReadDTO]:
+        applicants = await self._profile_repository.get_applicants(user_id)
+        histories: list[RatingHistoryReadDTO] = []
+        for applicant in applicants:
+            positions = await self._history_repository.read(
+                applicant_id=applicant.applicant_id,
+                direction=applicant.direction
+            )
+            last_change = int(calculate_velocity(positions)[-1])
+            history_dto = RatingHistoryReadDTO(
+                applicant_id=applicant.applicant_id,
+                direction=applicant.direction,
+                last_change=last_change,
+                positions=positions
+            )
+            histories.append(history_dto)
+        return histories

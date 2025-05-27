@@ -1,10 +1,10 @@
-from typing import Literal, Optional
+from typing import Literal
 
 from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from .domain import Profile, Exam, Applicant
+from .domain import Profile, Exam, Applicant, RatingPosition, RatingHistory
 from ..constants import (
     MIN_GPA,
     MAX_GPA,
@@ -46,6 +46,10 @@ class ApplicantRecommendDTO(BaseModel):
     exams: list[Exam]
 
 
+class RatingPositionCreateDTO(RatingPosition):
+    applicant_id: int
+
+
 class RecommendationDTO(BaseModel):
     direction_id: int
     direction: str
@@ -67,3 +71,9 @@ class RerankedPriorityDTO(BaseModel):
     priority: int
     direction: str
     probability: float
+
+
+class RatingHistoryReadDTO(RatingHistory):
+    applicant_id: int
+    direction: str
+    last_change: int

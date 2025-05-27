@@ -58,3 +58,14 @@ async def get_recommendations(
 ) -> list[PredictedRecommendationDTO]:
     recommendations = await direction_recommender.recommend(user_id, top_n)
     return recommendations
+
+
+@applicants_router.get(
+    path="/{user_id}/rating-history",
+    status_code=status.HTTP_200_OK,
+    response_model=...
+)
+async def get_rating_histories(
+        user_id: UUID,
+) -> ...:
+    ...
