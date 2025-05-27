@@ -11,7 +11,8 @@ from .dto import (
     RerankedPriorityDTO,
     ApplicantRecommendDTO,
     RecommendationDTO,
-    PredictionDTO
+    PredictionDTO,
+    PredictedRecommendationDTO
 )
 from .domain import (
     Applicant,
@@ -192,10 +193,17 @@ class DirectionRecommender:
             self,
             points: int,
             recommendations: list[RecommendationDTO]
-    ) -> list[PredictionDTO]:
+    ) -> list[PredictedRecommendationDTO]:
         applicant_dtos = [
             ApplicantPredictDTO(points=points, direction=recommendation.direction)
             for recommendation in recommendations
         ]
         predictions = await self._classifier_service.predict_batch(applicant_dtos)
-        return predictions
+        return [
+            PredictedRecommendationDTO(
+                direction_id=recommendation.direction_id,
+                direction=recommendation.direction,
+                probability=prediction.probability
+            )
+            for recommendation, prediction in zip(recommendations, predictions)
+        ]

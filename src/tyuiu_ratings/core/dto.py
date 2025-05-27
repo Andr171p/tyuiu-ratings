@@ -56,6 +56,12 @@ class PredictionDTO(BaseModel):
     probability: float
 
 
+class PredictedRecommendationDTO(BaseModel):
+    direction_id: int
+    direction: str
+    probability: float
+
+
 class RerankedPriorityDTO(BaseModel):
     priority: int
     direction: str

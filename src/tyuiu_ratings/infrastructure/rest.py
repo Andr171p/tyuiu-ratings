@@ -64,8 +64,12 @@ class RecommendationAPI(RecommendationService):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.base_url = base_url
 
-    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendationDTO]]:
-        url = f"{self.base_url}/api/v1/recommendations/"
+    async def recommend(
+            self,
+            applicant: ApplicantRecommendDTO,
+            top_n: int
+    ) -> Optional[list[RecommendationDTO]]:
+        url = f"{self.base_url}/api/v1/recommendations/?top_n={top_n}"
         headers = {"Content-Type": "application/json; charset=UTF-8"}
         try:
             async with aiohttp.ClientSession() as session:

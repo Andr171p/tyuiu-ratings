@@ -37,7 +37,11 @@ class ClassifierService(ABC):
 
 class RecommendationService(ABC):
     @abstractmethod
-    async def recommend(self, applicant: ApplicantRecommendDTO) -> Optional[list[RecommendationDTO]]: pass
+    async def recommend(
+            self,
+            applicant: ApplicantRecommendDTO,
+            top_n: int
+    ) -> Optional[list[RecommendationDTO]]: pass
 
 
 class TelegramUserService(ABC):
