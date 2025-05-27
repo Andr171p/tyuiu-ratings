@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from datetime import datetime
 
@@ -60,6 +60,7 @@ class PredictedRecommendationDTO(BaseModel):
     direction_id: int
     direction: str
     probability: float
+    status: Literal["BETTER", "SAME"] = "SAME"
 
 
 class RerankedPriorityDTO(BaseModel):

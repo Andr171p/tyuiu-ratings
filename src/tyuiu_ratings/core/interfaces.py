@@ -103,6 +103,9 @@ class ApplicantRepository(ABC):
     async def sort_by_probability(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
+    async def sort_by_priority(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
+
+    @abstractmethod
     async def count(self) -> int: pass
 
 

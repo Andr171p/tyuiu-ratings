@@ -62,9 +62,10 @@ class ProfileOrm(Base):
     
 class ApplicantOrm(Base):
     __tablename__ = "applicants"
-    
+
     applicant_id: Mapped[int] = mapped_column(
         ForeignKey("profiles.applicant_id"),
+        unique=False,
         nullable=False
     )   
     points: Mapped[int]
@@ -72,6 +73,7 @@ class ApplicantOrm(Base):
     rating: Mapped[int]
     institute: Mapped[str] = mapped_column(nullable=False)
     direction: Mapped[str] = mapped_column(nullable=False)
+    priority: Mapped[int] = mapped_column(nullable=False)
     probability: Mapped[float]
     original: Mapped[bool]
     

@@ -2,26 +2,22 @@ from typing import Annotated
 
 from fastapi import Query
 
-from pydantic import BaseModel
-
-from src.tyuiu_ratings.core.dto import (
-    RerankedPriorityDTO,
-    RecommendationDTO,
-    ApplicantReadDTO
+from src.tyuiu_ratings.constants import (
+    AVAILABLE_DIRECTIONS,
+    DEFAULT_TOP_N,
+    MIN_TOP_N,
+    MAX_TOP_N,
 )
-from src.tyuiu_ratings.constants import AVAILABLE_DIRECTIONS
 
 
 DirectionQuery = Annotated[AVAILABLE_DIRECTIONS, Query(..., description="Направление подготовки")]
 
-
-class ApplicantsResponse(BaseModel):
-    applicants: list[ApplicantReadDTO]
-
-
-class RerankedPrioritiesResponse(BaseModel):
-    priorities: list[RerankedPriorityDTO]
-
-
-class RecommendationsResponse(BaseModel):
-    recommendations: list[RecommendationDTO]
+TopNQuery = Annotated[
+    int,
+    Query(
+        DEFAULT_TOP_N,
+        ge=MIN_TOP_N,
+        le=MAX_TOP_N,
+        description="Количество рекомендаций для поиска лучших рекомендаций"
+    )
+]

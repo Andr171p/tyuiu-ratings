@@ -5,8 +5,9 @@ from fastapi import APIRouter, status, HTTPException
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.domain import Rating
-from src.tyuiu_ratings.core.use_cases import PrioritiesReranker, RatingReader
-from ..schemas import RerankedPrioritiesResponse, DirectionQuery
+from src.tyuiu_ratings.core.dto import RerankedPriorityDTO, PredictedRecommendationDTO
+from src.tyuiu_ratings.core.use_cases import PrioritiesReranker, RatingReader, DirectionRecommender
+from ..schemas import DirectionQuery, TopNQuery
 
 
 applicants_router = APIRouter(
@@ -19,14 +20,14 @@ applicants_router = APIRouter(
 @applicants_router.get(
     path="/{user_id}/reranked-priorities",
     status_code=status.HTTP_200_OK,
-    response_model=RerankedPrioritiesResponse
+    response_model=list[RerankedPriorityDTO]
 )
 async def rerank_priorities(
         user_id: UUID,
         priorities_reranker: FromDishka[PrioritiesReranker]
-) -> RerankedPrioritiesResponse:
+) -> list[RerankedPriorityDTO]:
     reranked_priorities = await priorities_reranker.rerank(user_id)
-    return RerankedPrioritiesResponse(priorities=reranked_priorities)
+    return reranked_priorities
 
 
 @applicants_router.get(
@@ -48,9 +49,12 @@ async def get_rating(
 @applicants_router.get(
     path="/{user_id}/recommendations",
     status_code=status.HTTP_200_OK,
-    response_model=...
+    response_model=list[PredictedRecommendationDTO]
 )
 async def get_recommendations(
         user_id: UUID,
-) -> ...:
-    ...
+        top_n: TopNQuery,
+        direction_recommender: FromDishka[DirectionRecommender]
+) -> list[PredictedRecommendationDTO]:
+    recommendations = await direction_recommender.recommend(user_id, top_n)
+    return recommendations

@@ -136,6 +136,20 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while sorting by probability: {e}")
 
+    async def sort_by_priority(self, applicant_id: int) -> list[ApplicantReadDTO]:
+        try:
+            stmt = (
+                select(ApplicantOrm)
+                .where(ApplicantOrm.applicant_id == applicant_id)
+                .order_by(ApplicantOrm.priority.desc())
+            )
+            results = await self.session.execute(stmt)
+            applicants = results.scalars().all()
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while sorting by priority: {e}")
+
     async def count(self) -> int:
         try:
             stmt = (
