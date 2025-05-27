@@ -5,9 +5,8 @@ from fastapi import APIRouter, status, HTTPException
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.domain import Profile
-from src.tyuiu_ratings.core.dto import ProfileReadDTO
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
-from ..schemas import ApplicantsResponse
+from src.tyuiu_ratings.core.dto import ProfileReadDTO, ApplicantReadDTO
 
 
 profiles_router = APIRouter(
@@ -47,16 +46,16 @@ async def get_profile(
 @profiles_router.get(
     path="/{user_id}/applicants",
     status_code=status.HTTP_200_OK,
-    response_model=ApplicantsResponse
+    response_model=list[ApplicantReadDTO]
 )
 async def get_applicants(
         user_id: UUID,
         profile_repository: FromDishka[ProfileRepository]
-) -> ApplicantsResponse:
+) -> list[ApplicantReadDTO]:
     applicants = await profile_repository.get_applicants(user_id)
     if not applicants:
         raise HTTPException(status_code=404, detail="Applicants not found")
-    return ApplicantsResponse(applicants=applicants)
+    return applicants
 
 
 @profiles_router.put(
