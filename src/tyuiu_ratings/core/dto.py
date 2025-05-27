@@ -40,7 +40,7 @@ class ApplicantPredictDTO(BaseModel):
 
 
 class ApplicantRecommendDTO(BaseModel):
-    gender: Literal["male", "female"]
+    gender: Literal["male", "female"] = "male"
     gpa: float = Field(ge=MIN_GPA, le=MAX_GPA)
     points: int = Field(ge=MIN_POINTS, le=MAX_POINTS)
     exams: list[Exam]
@@ -49,6 +49,11 @@ class ApplicantRecommendDTO(BaseModel):
 class RecommendationDTO(BaseModel):
     direction_id: int
     direction: str
+
+
+class PredictionDTO(BaseModel):
+    direction: str
+    probability: float
 
 
 class RerankedPriorityDTO(BaseModel):

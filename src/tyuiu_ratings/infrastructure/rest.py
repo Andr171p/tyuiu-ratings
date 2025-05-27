@@ -9,7 +9,8 @@ from ..core.domain import Notification
 from ..core.dto import (
     ApplicantPredictDTO,
     ApplicantRecommendDTO,
-    RecommendationDTO
+    RecommendationDTO,
+    PredictionDTO
 )
 from ..core.interfaces import (
     ClassifierService,
@@ -23,7 +24,7 @@ class ClassifierAPI(ClassifierService):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.base_url = base_url
 
-    async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]:
+    async def predict(self, applicant: ApplicantPredictDTO) -> Optional[PredictionDTO]:
         try:
             url = f"{self.base_url}/api/v1/classifier/predict"
             headers = {"Content-Type": "application/json; charset=UTF-8"}
@@ -34,11 +35,14 @@ class ClassifierAPI(ClassifierService):
                     json=applicant.model_dump()
                 ) as response:
                     data = await response.json()
-            return data["probability"]
+            return PredictionDTO.model_validate(data)
         except aiohttp.ClientError as e:
             self.logger.error("Error while predict: %s", e)
 
-    async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> Optional[list[float]]:
+    async def predict_batch(
+            self,
+            applicants: list[ApplicantPredictDTO]
+    ) -> Optional[list[PredictionDTO]]:
         try:
             url = f"{self.base_url}/api/v1/classifier/predict"
             headers = {"Content-Type": "application/json; charset=UTF-8"}
@@ -50,7 +54,7 @@ class ClassifierAPI(ClassifierService):
                     json=applicants
                 ) as response:
                     data = await response.json()
-            return [probability for probability in data["probabilities"]]
+            return [PredictionDTO.model_validate(prediction) for prediction in data]
         except aiohttp.ClientError as e:
             self.logger.error("Error while predict batch: %s", e)
 
@@ -72,7 +76,7 @@ class RecommendationAPI(RecommendationService):
                 ) as response:
                     data = await response.json()
             return [
-                RecommendationDTO.model_validate(direction)
+                RecommendationDTO(direction_id=direction["direction_id"], direction=direction["name"])
                 for direction in data["directions"]
             ]
         except aiohttp.ClientError as e:

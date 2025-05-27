@@ -5,7 +5,13 @@ import asyncio
 from uuid import UUID
 from datetime import datetime
 
-from .dto import ApplicantPredictDTO, ApplicantReadDTO, RerankedPriorityDTO
+from .dto import (
+    ApplicantPredictDTO,
+    ApplicantReadDTO,
+    RerankedPriorityDTO,
+    ApplicantRecommendDTO,
+    RecommendationDTO
+)
 from .domain import (
     Applicant,
     RatingPosition,
@@ -43,11 +49,11 @@ class RatingUpdater:
         await self._update_rating_history(applicants)
 
     async def _predict_probabilities(self, applicants: list[Applicant]) -> list[float]:
-        applicants_dto = [
+        applicant_dtos = [
             ApplicantPredictDTO(points=applicant.points, direction=applicant.direction)
             for applicant in applicants
         ]
-        probabilities = await self._classifier_service.predict_batch(applicants_dto)
+        probabilities = await self._classifier_service.predict_batch(applicant_dtos)
         return probabilities
 
     async def _update_applicants(
@@ -157,12 +163,33 @@ class DirectionRecommender:
     def __init__(
             self,
             applicant_repository: ApplicantRepository,
+            profile_repository: ProfileRepository,
             classifier_service: ClassifierService,
             recommendation_service: RecommendationService
     ) -> None:
         self._applicant_repository = applicant_repository
+        self._profile_repository = profile_repository
         self._classifier_service = classifier_service
         self._recommendation_service = recommendation_service
 
-    async def recommend(self, ) -> ...:
+    async def recommend(self, user_id: UUID) -> ...:
         ...
+
+    async def _get_recommendations(self, user_id: UUID) -> list[RecommendationDTO]:
+        profile = await self._profile_repository.read(user_id)
+        points = await self._profile_repository.get_applicant_points(user_id)
+        applicant_dto = ApplicantRecommendDTO(
+            gender=profile.gender,
+            gpa=profile.gpa,
+            points=points,
+            exams=profile.exams
+        )
+        recommendations = await self._recommendation_service.recommend(applicant_dto)
+        return recommendations
+
+    async def _predict_probabilities(self, points: int, recommendations: list[RecommendationDTO]) -> ...:
+        applicant_dtos = [
+            ApplicantPredictDTO(points=points, direction=recommendation.direction)
+            for recommendation in recommendations
+        ]
+        probabilities = await self._classifier_service.predict_batch(applicant_dtos)

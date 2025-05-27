@@ -7,7 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import ProfileOrm
+from ..models import ProfileOrm, ApplicantOrm
 from src.tyuiu_ratings.core.domain import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO, ApplicantReadDTO
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
@@ -98,3 +98,17 @@ class SQLProfileRepository(ProfileRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading applicants: {e}")
+
+    async def get_applicant_points(self, user_id: UUID) -> Optional[int]:
+        try:
+            stmt = (
+                select(ApplicantOrm.points)
+                .join(ProfileOrm, ApplicantOrm.applicant_id == ProfileOrm.applicant_id)
+                .where(ProfileOrm.user_id == user_id)
+                .limit(1)
+            )
+            points = await self.session.execute(stmt)
+            return points.scalar_one_or_none()
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise RuntimeError(f"Error while reading applicant points: {e}")

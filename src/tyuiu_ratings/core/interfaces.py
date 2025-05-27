@@ -18,17 +18,21 @@ from .dto import (
     ApplicantCreateDTO,
     ApplicantPredictDTO,
     ApplicantRecommendDTO,
-    RecommendationDTO
+    RecommendationDTO,
+    PredictionDTO
 )
 from ..constants import NOTIFICATIONS_QUEUE
 
 
 class ClassifierService(ABC):
     @abstractmethod
-    async def predict(self, applicant: ApplicantPredictDTO) -> Optional[float]: pass
+    async def predict(self, applicant: ApplicantPredictDTO) -> Optional[PredictionDTO]: pass
 
     @abstractmethod
-    async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> Optional[list[float]]: pass
+    async def predict_batch(
+            self,
+            applicants: list[ApplicantPredictDTO]
+    ) -> Optional[list[PredictionDTO]]: pass
 
 
 class RecommendationService(ABC):
@@ -59,6 +63,9 @@ class ProfileRepository(ABC):
 
     @abstractmethod
     async def get_applicants(self, user_id: UUID) -> list[Optional[ApplicantReadDTO]]: pass
+
+    @abstractmethod
+    async def get_applicant_points(self, user_id: UUID) -> int: pass
 
 
 class ApplicantRepository(ABC):
