@@ -9,6 +9,7 @@ from ..constants import (
     MAX_CHANGE,
     DAYS_COUNT,
     TOP_RATING,
+    RATING_STATUS,
     THRESHOLD_VELOCITY,
     BUDGET_PLACES_FOR_DIRECTIONS,
     WARNING_BUDGET_ZONE_THRESHOLD,
@@ -122,3 +123,17 @@ class NotificationMaker:
             rating_history: RatingHistory
     ) -> Optional[Notification]:
         return await self.create(applicant, rating_history)
+
+
+def get_rating_status(applicant: ApplicantReadDTO, rating_history: RatingHistory) -> RATING_STATUS:
+    positive_checker = PositiveConditionalChecker(applicant, rating_history)
+    if positive_checker.check():
+        return "POSITIVE"
+    warning_checker = WarningConditionalChecker(applicant, rating_history)
+    if warning_checker.check():
+        return "WARNING"
+    critical_checker = CriticalConditionalChecker(applicant, rating_history)
+    if critical_checker.check():
+        return "CRITICAL"
+    else:
+        return "OK"

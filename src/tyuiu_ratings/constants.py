@@ -65,6 +65,13 @@ NOTIFICATION_LEVELS = Literal[
     "CRITICAL"  # Критический уровень (больше не проходит на бюджет -> дать рекомендации)
 ]
 
+RATING_STATUS = Literal[
+    "POSITIVE",  # Высокий шанс поступления
+    "OK",  # Хорошие - средние шансы
+    "WARNING",  # Нестабильная ситуация
+    "CRITICAL"  # Критически плохие шансы
+]
+
 # Пагинация:
 MIN_PAGE = 1
 DEFAULT_LIMIT = 100

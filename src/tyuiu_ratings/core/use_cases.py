@@ -14,7 +14,7 @@ from .dto import (
     PredictionDTO,
     PredictedRecommendationDTO,
     RatingPositionCreateDTO,
-    RatingHistoryReadDTO
+    ApplicantRatingHistoryDTO
 )
 from .domain import (
     Applicant,
@@ -31,7 +31,7 @@ from .interfaces import (
     HistoryRepository,
     AMQPBroker,
 )
-from .services import NotificationMaker
+from .services import NotificationMaker, get_rating_status
 from ..utils import calculate_pages, calculate_velocity
 from ..constants import DEFAULT_LIMIT, AVAILABLE_DIRECTIONS
 
@@ -270,19 +270,19 @@ class RatingHistoryReader:
         self._profile_repository = profile_repository
         self._history_repository = history_repository
 
-    async def read(self, user_id: UUID) -> list[RatingHistoryReadDTO]:
+    async def read(self, user_id: UUID) -> list[ApplicantRatingHistoryDTO]:
         applicants = await self._profile_repository.get_applicants(user_id)
-        histories: list[RatingHistoryReadDTO] = []
+        histories: list[ApplicantRatingHistoryDTO] = []
         for applicant in applicants:
             positions = await self._history_repository.read(
                 applicant_id=applicant.applicant_id,
                 direction=applicant.direction
             )
-            last_change = int(calculate_velocity(positions)[-1])
-            history_dto = RatingHistoryReadDTO(
+            history_dto = ApplicantRatingHistoryDTO(
                 applicant_id=applicant.applicant_id,
                 direction=applicant.direction,
-                last_change=last_change,
+                last_change=int(calculate_velocity(positions)[-1]),
+                status=get_rating_status(applicant, RatingHistory(positions=positions)),
                 positions=positions
             )
             histories.append(history_dto)

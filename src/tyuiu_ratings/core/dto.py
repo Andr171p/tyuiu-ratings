@@ -12,7 +12,8 @@ from ..constants import (
     MAX_POINTS,
     PREDICTED_YEAR,
     DEFAULT_GPA,
-    DEFAULT_GENDER
+    DEFAULT_GENDER,
+    RATING_STATUS
 )
 
 
@@ -73,7 +74,8 @@ class RerankedPriorityDTO(BaseModel):
     probability: float
 
 
-class RatingHistoryReadDTO(RatingHistory):
+class ApplicantRatingHistoryDTO(RatingHistory):
     applicant_id: int
     direction: str
     last_change: int
+    status: RATING_STATUS
