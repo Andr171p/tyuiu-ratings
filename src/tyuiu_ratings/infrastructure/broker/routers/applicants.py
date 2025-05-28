@@ -1,5 +1,6 @@
 from faststream import Logger
 from faststream.rabbit import RabbitRouter
+
 from dishka.integrations.base import FromDishka
 
 from src.tyuiu_ratings.core.domain import Applicant

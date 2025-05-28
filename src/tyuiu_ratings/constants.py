@@ -101,3 +101,10 @@ PG_DRIVER: Literal["asyncpg"] = "asyncpg"
 # Время истечения кеша в секундах:
 DEFAULT_CACHE_EXPIRE = 3600  # 1 час
 RATING_HISTORY_CACHE_EXPIRE = 3600 * 24  # Сутки
+
+# Часовой пояс:
+CURRENT_TIMEZONE = "Asia/Yekaterinburg"
+
+# Время для запуска рассылки уведомлений:
+BROADCAST_HOURS = 9
+BROADCAST_MINUTES = 0
