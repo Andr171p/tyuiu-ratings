@@ -40,7 +40,7 @@ async def rerank_priorities(
 
 
 @applicants_router.get(
-    path="/{user_id}/rating",
+    path="/{user_id}/rating/",
     status_code=status.HTTP_200_OK,
     response_model=Rating
 )

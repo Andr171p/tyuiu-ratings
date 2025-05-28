@@ -270,8 +270,10 @@ class RatingHistoryService:
         self._profile_repository = profile_repository
         self._rating_position_repository = rating_position_repository
 
-    async def get_rating_histories(self, user_id: UUID) -> list[ApplicantRatingHistoryDTO]:
+    async def get_rating_histories(self, user_id: UUID) -> list[Optional[ApplicantRatingHistoryDTO]]:
         applicants = await self._profile_repository.get_applicants(user_id)
+        if not applicants:
+            return []
         histories: list[ApplicantRatingHistoryDTO] = []
         for applicant in applicants:
             positions = await self._rating_position_repository.read(
