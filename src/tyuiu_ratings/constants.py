@@ -94,3 +94,6 @@ TOP_RATING = 10
 MIN_TOP_N = 1
 MAX_TOP_N = 52
 DEFAULT_TOP_N = 15
+
+# Драйвер для работы с Postgres:
+PG_DRIVER: Literal["asyncpg"] = "asyncpg"
