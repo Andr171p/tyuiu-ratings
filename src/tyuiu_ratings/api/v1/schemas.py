@@ -2,12 +2,7 @@ from typing import Annotated
 
 from fastapi import Query
 
-from src.tyuiu_ratings.constants import (
-    AVAILABLE_DIRECTIONS,
-    DEFAULT_TOP_N,
-    MIN_TOP_N,
-    MAX_TOP_N,
-)
+from src.tyuiu_ratings.constants import AVAILABLE_DIRECTIONS, MIN_TOP_N, MAX_TOP_N
 
 
 DirectionQuery = Annotated[AVAILABLE_DIRECTIONS, Query(..., description="Направление подготовки")]
@@ -15,7 +10,7 @@ DirectionQuery = Annotated[AVAILABLE_DIRECTIONS, Query(..., description="Нап�
 TopNQuery = Annotated[
     int,
     Query(
-        DEFAULT_TOP_N,
+        ...,
         ge=MIN_TOP_N,
         le=MAX_TOP_N,
         description="Количество рекомендаций для поиска лучших рекомендаций"
