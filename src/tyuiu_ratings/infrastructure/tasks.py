@@ -9,6 +9,7 @@ from ..core.use_cases import NotificationBroadcaster
 
 
 async def broadcast_notifications_task() -> None:
+    """Задача для рассылки уведомлений абитуриентам"""
     notification_broadcaster = await container.get(NotificationBroadcaster)
     await notification_broadcaster.broadcast()
 
