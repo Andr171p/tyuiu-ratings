@@ -2,8 +2,6 @@ from typing import Annotated
 
 from fastapi import Query
 
-from pydantic import BaseModel
-
 from src.tyuiu_ratings.constants import (
     AVAILABLE_DIRECTIONS,
     DEFAULT_TOP_N,
@@ -23,8 +21,3 @@ TopNQuery = Annotated[
         description="Количество рекомендаций для поиска лучших рекомендаций"
     )
 ]
-
-
-class HistoryResponse(BaseModel):
-    last_change: int
-    rating_history: list[...]
