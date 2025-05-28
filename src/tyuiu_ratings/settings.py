@@ -13,6 +13,15 @@ class APISettings(BaseSettings):
     REC_SYS: str = os.getenv("REC_SYS_URL")
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str = os.getenv("REDIS_HOST")
+    REDIS_PORT: int = os.getenv("REDIS_PORT")
+
+    @property
+    def redis_url(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
+
+
 class PostgresSettings(BaseSettings):
     PG_HOST: str = os.getenv("POSTGRES_HOST")
     PG_PORT: int = os.getenv("POSTGRES_PORT")
@@ -38,6 +47,6 @@ class RabbitSettings(BaseSettings):
 
 class Settings(BaseSettings):
     api: APISettings = APISettings()
-    redis: RabbitSettings = RabbitSettings()
+    redis: RedisSettings = RedisSettings()
     postgres: PostgresSettings = PostgresSettings()
     rabbit: RabbitSettings = RabbitSettings()
