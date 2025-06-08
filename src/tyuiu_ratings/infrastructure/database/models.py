@@ -6,7 +6,7 @@ from sqlalchemy import ForeignKey, DateTime, Index, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from src.tyuiu_ratings.constants import (
+from ...constants import (
     MIN_GPA,
     MAX_GPA,
     MIN_POINTS,
@@ -34,29 +34,25 @@ class ExamOrm(Base):
         CheckConstraint(
             f"points <= {MAX_EXAM_POINTS} AND points >= {MIN_EXAM_POINTS}",
             "check_exam_points_range"
-        )
+        ),
     )
     
 
 class ProfileOrm(Base):
     __tablename__ = "profiles"
 
-    user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True))
-    applicant_id: Mapped[int] = mapped_column(
-        unique=True, 
-        nullable=False, 
-        primary_key=True
-    )
+    user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), unique=True)
+    applicant_id: Mapped[int] = mapped_column(primary_key=True, unique=True)
     gender: Mapped[str]
     gpa: Mapped[float]
     exams: Mapped[list["ExamOrm"]] = relationship(back_populates="profile")
-    
     applicants: Mapped[list["ApplicantOrm"]] = relationship(back_populates="profile")
+    rating_histories: Mapped[list["RatingPositionOrm"]] = relationship(back_populates="profile")
 
     __table_args__ = (
         Index("id_index", "user_id", "applicant_id"),
         CheckConstraint(f"gpa >= {MIN_GPA} AND gpa <= {MAX_GPA}", "check_gpa_range"),
-        CheckConstraint("gender IN ('male', 'female')", "check_all_genders")
+        CheckConstraint("gender IN ('male', 'female')", "check_all_genders"),
     )
     
     
@@ -78,7 +74,6 @@ class ApplicantOrm(Base):
     original: Mapped[bool]
     
     profile: Mapped["ProfileOrm"] = relationship(back_populates="applicants")
-    rating_positions: Mapped[list["RatingPositionOrm"]] = relationship(back_populates="applicant")
 
     __table_args__ = (
         Index("direction_index", "direction"),
@@ -89,23 +84,20 @@ class ApplicantOrm(Base):
         CheckConstraint(
             f"bonus_points >= {MIN_BONUS_POINTS} AND bonus_points <= {MAX_BONUS_POINTS}",
             "check_bonus_points_range"
-        )
+        ),
     )
     
     
 class RatingPositionOrm(Base):
     __tablename__ = "history"
-    
-    applicant_id: Mapped[int] = mapped_column(
-        ForeignKey("applicants.applicant_id"),
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("profiles.user_id"),
         unique=False,
-        nullable=False
+        nullable=True
     )
-    direction: Mapped[str] = mapped_column(
-        ForeignKey("applicants.direction"),
-        unique=False,
-        nullable=False
-    )
+    applicant_id: Mapped[int] = mapped_column(unique=False, nullable=False)
+    direction: Mapped[str] = mapped_column(unique=False, nullable=False)
     rating: Mapped[int]
     date: Mapped[datetime] = mapped_column(DateTime, default=datetime.today)
     

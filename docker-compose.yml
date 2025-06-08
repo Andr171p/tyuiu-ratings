@@ -1,18 +1,4 @@
 services:
-  redis:
-    image: redis:alpine
-    ports:
-      - "8479:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
-    restart: always
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 3
-
   postgres:
     image: postgres:13-alpine
     restart: unless-stopped
@@ -30,21 +16,6 @@ services:
       timeout: 3s
       retries: 3
 
-  tyuiu-ratings:
-    build: .
-    restart: unless-stopped
-    volumes:
-      - .:/tyuiu_ratings
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/tyuiu_ratings
-      - REDIS_URL=redis://redis:6379
-    ports:
-      - "8003:8000"
-    depends_on:
-      - postgres
-      - redis
-
 
 volumes:
-  redis_data:
   postgres_data:
