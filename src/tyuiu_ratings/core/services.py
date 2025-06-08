@@ -114,7 +114,7 @@ class NotificationMaker:
             return Notification(
                 level="CRITICAL",
                 user_id=profile.user_id,
-                text=CRITICAL_MESSAGE.format(...)
+                text=CRITICAL_MESSAGE.format()
             )
 
     async def __call__(

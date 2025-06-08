@@ -6,17 +6,9 @@ from uuid import UUID
 import aiohttp
 
 from ..core.domain import Notification
-from ..core.dto import (
-    ApplicantPredictDTO,
-    ApplicantRecommendDTO,
-    RecommendationDTO,
-    PredictionDTO
-)
-from ..core.interfaces import (
-    ClassifierService,
-    RecommendationService,
-    TelegramUserService
-)
+from ..core.exception import PredictionError, RecommendationError, TelegramError
+from ..core.dto import ApplicantPredictDTO, ApplicantRecommendDTO, RecommendationDTO, PredictionDTO
+from ..core.interfaces import ClassifierService, RecommendationService, TelegramUserService
 
 
 class ClassifierAPI(ClassifierService):
@@ -38,6 +30,7 @@ class ClassifierAPI(ClassifierService):
             return PredictionDTO.model_validate(data)
         except aiohttp.ClientError as e:
             self.logger.error("Error while predict: %s", e)
+            raise PredictionError(f"Error while predict: {e}") from e
 
     async def predict_batch(
             self,
@@ -57,6 +50,7 @@ class ClassifierAPI(ClassifierService):
             return [PredictionDTO.model_validate(prediction) for prediction in data]
         except aiohttp.ClientError as e:
             self.logger.error("Error while predict batch: %s", e)
+            raise PredictionError(f"Error while predict batch: {e}") from e
 
 
 class RecommendationAPI(RecommendationService):
@@ -85,6 +79,7 @@ class RecommendationAPI(RecommendationService):
             ]
         except aiohttp.ClientError as e:
             self.logger.error("Error while recommend directions: %s", e)
+            raise RecommendationError(f"Error while recommend directions: {e}") from e
 
 
 class TelegramUserAPI(TelegramUserService):
@@ -99,6 +94,7 @@ class TelegramUserAPI(TelegramUserService):
             async with aiohttp.ClientSession() as session:
                 async with session.get(url=url, headers=headers) as response:
                     data = await response.json()
-            return [Notification.model_validate(notification) for notification in data["notification"]]
+            return [Notification.model_validate(notification) for notification in data]
         except aiohttp.ClientError as e:
             self.logger.error("Error while receiving notifications: %s", e)
+            raise TelegramError(f"Error while receiving notifications: {e}") from e
