@@ -2,8 +2,6 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
-from fastapi_cache.decorator import cache
-
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.domain import Rating
@@ -18,8 +16,7 @@ from src.tyuiu_ratings.core.use_cases import (
     DirectionRecommender,
     RatingHistoryService
 )
-from src.tyuiu_ratings.constants import DEFAULT_CACHE_EXPIRE, RATING_HISTORY_CACHE_EXPIRE
-from ..schemas import DirectionQuery, TopNQuery
+from ..params import DirectionQuery, TopNQuery
 
 
 applicants_router = APIRouter(
@@ -30,11 +27,10 @@ applicants_router = APIRouter(
 
 
 @applicants_router.get(
-    path="/{user_id}/reranked-priorities",
+    path="/{user_id}/rerank-priorities",
     status_code=status.HTTP_200_OK,
     response_model=list[RerankedPriorityDTO]
 )
-@cache(expire=DEFAULT_CACHE_EXPIRE)
 async def rerank_priorities(
         user_id: UUID,
         priorities_reranker: FromDishka[PrioritiesReranker]
@@ -44,11 +40,10 @@ async def rerank_priorities(
 
 
 @applicants_router.get(
-    path="/{user_id}/rating/",
+    path="/{user_id}/rating",
     status_code=status.HTTP_200_OK,
     response_model=Rating
 )
-@cache(expire=DEFAULT_CACHE_EXPIRE)
 async def get_rating(
         user_id: UUID,
         direction: DirectionQuery,
@@ -61,11 +56,10 @@ async def get_rating(
 
 
 @applicants_router.get(
-    path="/{user_id}/recommendations",
+    path="/{user_id}/recommend",
     status_code=status.HTTP_200_OK,
     response_model=list[PredictedRecommendationDTO]
 )
-@cache(expire=DEFAULT_CACHE_EXPIRE)
 async def get_recommendations(
         user_id: UUID,
         top_n: TopNQuery,
@@ -80,7 +74,6 @@ async def get_recommendations(
     status_code=status.HTTP_200_OK,
     response_model=list[ApplicantRatingHistoryDTO]
 )
-@cache(expire=RATING_HISTORY_CACHE_EXPIRE)
 async def get_rating_histories(
         user_id: UUID,
         rating_history_service: FromDishka[RatingHistoryService]

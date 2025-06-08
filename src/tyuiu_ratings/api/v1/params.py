@@ -5,7 +5,10 @@ from fastapi import Query
 from src.tyuiu_ratings.constants import AVAILABLE_DIRECTIONS, MIN_TOP_N, MAX_TOP_N
 
 
-DirectionQuery = Annotated[AVAILABLE_DIRECTIONS, Query(..., description="Направление подготовки")]
+DirectionQuery = Annotated[
+    AVAILABLE_DIRECTIONS,
+    Query(..., description="Направление подготовки")
+]
 
 TopNQuery = Annotated[
     int,

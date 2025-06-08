@@ -2,14 +2,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
-from fastapi_cache.decorator import cache
-
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.domain import Profile
 from src.tyuiu_ratings.core.interfaces import ProfileRepository
 from src.tyuiu_ratings.core.dto import ProfileReadDTO, ApplicantReadDTO
-from src.tyuiu_ratings.constants import DEFAULT_CACHE_EXPIRE
 
 
 profiles_router = APIRouter(
@@ -36,7 +33,6 @@ async def create_profile(
     status_code=status.HTTP_200_OK,
     response_model=ProfileReadDTO
 )
-@cache(expire=DEFAULT_CACHE_EXPIRE)
 async def get_profile(
         user_id: UUID,
         profile_repository: FromDishka[ProfileRepository]
@@ -79,7 +75,7 @@ async def update_profile(
 
 @profiles_router.delete(
     path="/{user_id}",
-    status_code=status.HTTP_202_ACCEPTED,
+    status_code=status.HTTP_200_OK,
     response_model=ProfileReadDTO
 )
 async def delete_profile(
