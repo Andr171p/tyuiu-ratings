@@ -47,18 +47,18 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.rollback()
             raise RuntimeError(f"Error while bulk creating: {e}")
 
-    async def read(self, applicant_id: int) -> Optional[ApplicantReadDTO]:
+    async def read(self, applicant_id: int) -> list[ApplicantReadDTO]:
         try:
             stmt = (
                 select(ApplicantOrm)
                 .where(ApplicantOrm.applicant_id == applicant_id)
             )
-            result = await self.session.execute(stmt)
-            applicant = result.scalar_one_or_none()
-            return ApplicantReadDTO.model_validate(applicant) if applicant else None
+            results = await self.session.execute(stmt)
+            applicants = results.scalars().all()
+            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while reading {e}")
+            raise RuntimeError(f"Error while reading by applicant id: {e}")
 
     async def get_by_direction(self, direction: str) -> List[ApplicantReadDTO]:
         try:
@@ -72,19 +72,6 @@ class SQLApplicantRepository(ApplicantRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RuntimeError(f"Error while reading by direction: {e}")
-
-    async def get_by_applicant_id(self, applicant_id: int) -> list[ApplicantReadDTO]:
-        try:
-            stmt = (
-                select(ApplicantOrm)
-                .where(ApplicantOrm.applicant_id == applicant_id)
-            )
-            results = await self.session.execute(stmt)
-            applicants = results.scalars().all()
-            return [ApplicantReadDTO.model_validate(applicant) for applicant in applicants]
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            raise RuntimeError(f"Error while reading by applicant id: {e}")
 
     async def paginate(self, page: int, limit: int) -> list[ApplicantReadDTO]:
         try:

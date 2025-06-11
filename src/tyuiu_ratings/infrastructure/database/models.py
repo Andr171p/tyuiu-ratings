@@ -100,7 +100,7 @@ class RatingOrm(Base):
     applicant_id: Mapped[int] = mapped_column(unique=False, nullable=False)
     direction: Mapped[str] = mapped_column(unique=False, nullable=False)
     rating: Mapped[int]
-    date: Mapped[datetime] = mapped_column(DateTime, default=datetime.today)
+    date: Mapped[datetime] = mapped_column(DateTime)
     
     applicant: Mapped["ApplicantOrm"] = relationship(back_populates="rating_positions")
     

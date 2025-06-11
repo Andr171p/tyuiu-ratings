@@ -82,13 +82,10 @@ class ApplicantRepository(ABC):
     async def bulk_create(self, applicants: list[ApplicantCreateDTO]) -> None: pass
 
     @abstractmethod
-    async def read(self, applicant_id: int) -> Optional[ApplicantReadDTO]: pass
+    async def read(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
     async def get_by_direction(self, direction: str) -> list[ApplicantReadDTO]: pass
-
-    @abstractmethod
-    async def get_by_applicant_id(self, applicant_id: int) -> list[ApplicantReadDTO]: pass
 
     @abstractmethod
     async def paginate(self, page: int, limit: int) -> list[ApplicantReadDTO]: pass

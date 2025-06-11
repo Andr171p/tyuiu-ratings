@@ -25,7 +25,7 @@ class GetCompetitionListUseCase:
         profile = await self._profile_repository.read(user_id)
         applicants = await self._applicant_repository.get_by_direction(direction)
         return CompetitionList(
-            applicant_id=profile.applicant_id,\
+            applicant_id=profile.applicant_id,
             institute=applicants[0].institute,
             direction=direction,
             applicants=applicants
