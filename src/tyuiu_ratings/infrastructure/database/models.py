@@ -45,9 +45,10 @@ class ProfileOrm(Base):
     applicant_id: Mapped[int] = mapped_column(primary_key=True, unique=True)
     gender: Mapped[str]
     gpa: Mapped[float]
+
     exams: Mapped[list["ExamOrm"]] = relationship(back_populates="profile")
     applicants: Mapped[list["ApplicantOrm"]] = relationship(back_populates="profile")
-    rating_histories: Mapped[list["RatingPositionOrm"]] = relationship(back_populates="profile")
+    ratings: Mapped[list["RatingOrm"]] = relationship(back_populates="profile")
 
     __table_args__ = (
         Index("id_index", "user_id", "applicant_id"),
@@ -88,8 +89,8 @@ class ApplicantOrm(Base):
     )
     
     
-class RatingPositionOrm(Base):
-    __tablename__ = "history"
+class RatingOrm(Base):
+    __tablename__ = "ratings"
 
     user_id: Mapped[UUID] = mapped_column(
         ForeignKey("profiles.user_id"),

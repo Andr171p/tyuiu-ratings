@@ -1,4 +1,4 @@
-from typing import Optional, Protocol, Union
+from typing import Optional, Protocol
 
 from abc import ABC, abstractmethod
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from .domain import (
     Profile,
-    RatingPosition,
+    Rating,
     RatingHistory,
     Notification
 )
@@ -20,8 +20,9 @@ from .dto import (
     ApplicantRecommendDTO,
     RecommendationDTO,
     PredictionDTO,
-    RatingPositionCreateDTO
+    RatingCreateDTO
 )
+
 from ..constants import NOTIFICATIONS_QUEUE
 
 
@@ -110,12 +111,12 @@ class ApplicantRepository(ABC):
     async def count(self) -> int: pass
 
 
-class RatingPositionRepository(ABC):
+class RatingRepository(ABC):
     @abstractmethod
-    async def bulk_create(self, rating_position: list[RatingPositionCreateDTO]) -> None: pass
+    async def bulk_create(self, rating_position: list[RatingCreateDTO]) -> None: pass
 
     @abstractmethod
-    async def read(self, applicant_id: int, direction: str) -> list[RatingPosition]: pass
+    async def read(self, applicant_id: int, direction: str) -> list[Rating]: pass
 
 
 class BaseConditionalChecker(ABC):
@@ -126,9 +127,9 @@ class BaseConditionalChecker(ABC):
     def check(self) -> bool: pass
 
 
-class AMQPBroker(Protocol):
+class BaseBroker(Protocol):
     async def publish(
             self,
-            messages: Union[BaseModel, list[BaseModel]],
+            messages: BaseModel | list[BaseModel] | dict,
             queue: str = NOTIFICATIONS_QUEUE
     ) -> None: pass

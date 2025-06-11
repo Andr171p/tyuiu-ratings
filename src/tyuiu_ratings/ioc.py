@@ -7,14 +7,16 @@ from faststream.rabbit import RabbitBroker
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .settings import Settings
-from .core.interfaces import ApplicantRepository, ProfileRepository, RatingPositionRepository
+
+from .core.factories import NotificationMaker
+from .core.base import ApplicantRepository, ProfileRepository, RatingRepository
+
 from .infrastructure.database.session import create_session_maker
 from .infrastructure.database.repositories import (
     SQLApplicantRepository,
     SQLProfileRepository,
-    SQLRatingPositionRepository
+    SQLRatingRepository
 )
-from .core.services import NotificationMaker
 
 
 class AppProvider(Provider):
@@ -45,12 +47,12 @@ class AppProvider(Provider):
         return SQLProfileRepository(session)
 
     @provide(scope=Scope.REQUEST)
-    def get_rating_position_repository(self, session: AsyncSession) -> RatingPositionRepository:
-        return SQLRatingPositionRepository(session)
+    def get_rating_position_repository(self, session: AsyncSession) -> RatingRepository:
+        return SQLRatingRepository(session)
 
     @provide(scope=Scope.REQUEST)
-    def get_notification_maker(self, profile_repository: ...) -> ...:
-        ...
+    def get_notification_maker(self, profile_repository: ProfileRepository) -> NotificationMaker:
+        return NotificationMaker(profile_repository)
 
 
 settings = Settings()

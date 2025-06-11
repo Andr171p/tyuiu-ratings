@@ -26,14 +26,15 @@ from ..constants import (
     MAX_BONUS_POINTS,
     MIN_EXAM_POINTS,
     MAX_EXAM_POINTS,
-    AVAILABLE_SUBJECTS,
-    NOTIFICATION_LEVELS
+    SUBJECT,
+    NOTIFICATION_LEVEL
 )
 
 
 class Applicant(BaseModel):
+    """Абитуриент, участник конкурсного списка"""
     applicant_id: int  # Уникальный код абитуриента
-    rating: int  # Место в рейтинге
+    rank: int  # Место в рейтинге
     institute: str  # Институт
     direction: str  # Направление подготовки
     priority: int = Field(ge=MIN_PRIORITY, le=MAX_PRIORITY)  # Приоритет
@@ -49,7 +50,7 @@ class Applicant(BaseModel):
         from .dto import ApplicantCreateDTO
         return ApplicantCreateDTO(
             applicant_id=self.applicant_id,
-            rating=self.rating,
+            rank=self.rank,
             institute=self.institute,
             direction=self.direction,
             priority=self.priority,
@@ -60,45 +61,50 @@ class Applicant(BaseModel):
         )
 
 
-class Rating(BaseModel):
+class CompetitionList(BaseModel):
+    """Конкурсный список абитуриентов на конкретное направление"""
     applicant_id: int
     institute: str
     direction: str
-    rating: list[Applicant]
+    applicants: list[Applicant]
 
 
-class RatingPosition(BaseModel):
-    rating: int
+class Rating(BaseModel):
+    """Позиция в рейтинге за конкретный день"""
+    rank: int
     date: datetime
 
 
 class RatingHistory(BaseModel):
-    positions: list[RatingPosition]
+    """История изменения рейтинга"""
+    ratings: list[Rating]
 
     @property
     def velocity(self) -> list[float]:
-        return calculate_velocity(self.positions)
+        return calculate_velocity(self.ratings)
 
     @property
     def mean_velocity(self) -> float:
-        return calculate_mean_velocity(self.positions)
+        return calculate_mean_velocity(self.ratings)
 
     @property
     def acceleration(self) -> list[float]:
-        return calculate_acceleration(self.positions)
+        return calculate_acceleration(self.ratings)
 
     @property
     def stability(self) -> float:
-        return calculate_stability(self.positions)
+        return calculate_stability(self.ratings)
 
 
 class Exam(BaseModel):
-    subject: AVAILABLE_SUBJECTS
+    """Экзамен ЕГЭ"""
+    subject: SUBJECT
     points: int = Field(ge=MIN_EXAM_POINTS, le=MAX_EXAM_POINTS)
 
 
 class Profile(BaseModel):
-    user_id: UUID
+    """Профиль абитуриента"""
+    user_id: UUID  # Уникальный ID пользователя получаемый при регистрации
     applicant_id: int
     gender: Literal["male", "female"]
     gpa: float = Field(ge=MIN_GPA, le=MAX_GPA)
@@ -106,7 +112,8 @@ class Profile(BaseModel):
 
 
 class Notification(BaseModel):
-    level: NOTIFICATION_LEVELS
+    """Уведомление для абитуриента"""
+    level: NOTIFICATION_LEVEL
     user_id: UUID
     photo: Optional[str] = None
     text: str

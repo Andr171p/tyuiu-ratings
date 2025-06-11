@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import ProfileOrm, ApplicantOrm
 from src.tyuiu_ratings.core.domain import Profile
 from src.tyuiu_ratings.core.dto import ProfileReadDTO, ApplicantReadDTO
-from src.tyuiu_ratings.core.interfaces import ProfileRepository
+from src.tyuiu_ratings.core.base import ProfileRepository
 
 
 class SQLProfileRepository(ProfileRepository):

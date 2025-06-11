@@ -1,13 +1,5 @@
 from typing import Literal
 
-from pathlib import Path
-
-
-# Директория проекта
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-
-ENV_PATH = BASE_DIR / ".env"  # Переменные окружения
-
 
 # Минимальное и максимальное количество баллов ЕГЭ:
 MIN_POINTS = 0
@@ -53,9 +45,6 @@ DEFAULT_GENDER = "male"
 
 # Направления подготовки:
 DIRECTION = Literal[""]
-
-# Маппинг направлений подготовки:
-DIRECTIONS_MAPPING_CSV = BASE_DIR / "file_store" / "directions_mapping_2025.csv"
 
 # Уровни уведомлений абитуриентам:
 NOTIFICATION_LEVEL = Literal[

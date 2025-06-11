@@ -5,13 +5,13 @@ import pytz
 
 from ..ioc import container
 from ..constants import CURRENT_TIMEZONE, BROADCAST_HOURS, BROADCAST_MINUTES
-from ..core.use_cases import NotificationBroadcaster
+from ..core.use_cases.notification import BroadcastNotificationsUseCase
 
 
 async def broadcast_notifications_task() -> None:
     """Задача для рассылки уведомлений абитуриентам"""
-    notification_broadcaster = await container.get(NotificationBroadcaster)
-    await notification_broadcaster.broadcast()
+    broadcast_notifications_use_case = await container.get(BroadcastNotificationsUseCase)
+    await broadcast_notifications_use_case.broadcast()
 
 
 def create_scheduler_app() -> AsyncIOScheduler:

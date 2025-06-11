@@ -2,9 +2,10 @@ from typing import Optional
 
 from .dto import ApplicantReadDTO
 from .domain import RatingHistory, Notification
-from .interfaces import BaseConditionalChecker, ProfileRepository
+from .base import BaseConditionalChecker, ProfileRepository
 from .templates import POSITIVE_MESSAGE, WARNING_MESSAGE, CRITICAL_MESSAGE
 
+from ..utils import is_rating_stable
 from ..constants import (
     MAX_CHANGE,
     DAYS_COUNT,
@@ -16,7 +17,6 @@ from ..constants import (
     POSITIVE_THRESHOLD_PROBABILITY,
     CRITICAL_THRESHOLD_PROBABILITY,
 )
-from ..utils import is_rating_stable
 
 
 class PositiveConditionalChecker(BaseConditionalChecker):
@@ -31,7 +31,7 @@ class PositiveConditionalChecker(BaseConditionalChecker):
     def _high_probability_conditional(self) -> bool:
         """Высокая вероятность поступления на бюджет"""
         return self._applicant.probability >= POSITIVE_THRESHOLD_PROBABILITY \
-            and self._applicant.rating < BUDGET_PLACES_FOR_DIRECTIONS[self._applicant.direction] \
+            and self._applicant.rank < BUDGET_PLACES_FOR_DIRECTIONS[self._applicant.direction] \
             - WARNING_BUDGET_ZONE_THRESHOLD
 
     @property
@@ -41,7 +41,7 @@ class PositiveConditionalChecker(BaseConditionalChecker):
             history=self._rating_history.history,
             days_count=DAYS_COUNT,
             max_change=MAX_CHANGE
-        ) and self._applicant.rating <= TOP_RATING
+        ) and self._applicant.rank <= TOP_RATING
 
 
 class WarningConditionalChecker(BaseConditionalChecker):
@@ -61,7 +61,7 @@ class WarningConditionalChecker(BaseConditionalChecker):
     def _in_warning_zone_conditional(self) -> bool:
         """Абитуриент приближается к зоне вылета из конкурса"""
         return BUDGET_PLACES_FOR_DIRECTIONS[self._applicant.direction] \
-            - self._applicant.rating > WARNING_BUDGET_ZONE_THRESHOLD
+            - self._applicant.rank > WARNING_BUDGET_ZONE_THRESHOLD
 
 
 class CriticalConditionalChecker(BaseConditionalChecker):
@@ -83,11 +83,11 @@ class CriticalConditionalChecker(BaseConditionalChecker):
         return self._applicant.rating > BUDGET_PLACES_FOR_DIRECTIONS[self._applicant.direction]
 
 
-class NotificationMaker:
+class NotificationFactory:
     def __init__(self, profile_repository: ProfileRepository) -> None:
         self._profile_repository = profile_repository
 
-    async def create(
+    async def get_notification(
             self,
             applicant: ApplicantReadDTO,
             rating_history: RatingHistory
@@ -116,13 +116,7 @@ class NotificationMaker:
                 user_id=profile.user_id,
                 text=CRITICAL_MESSAGE.format()
             )
-
-    async def __call__(
-            self,
-            applicant: ApplicantReadDTO,
-            rating_history: RatingHistory
-    ) -> Optional[Notification]:
-        return await self.create(applicant, rating_history)
+        return None
 
 
 def get_rating_status(applicant: ApplicantReadDTO, rating_history: RatingHistory) -> RATING_STATUS:

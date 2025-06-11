@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert
 
 from ..models import ApplicantOrm
-from src.tyuiu_ratings.core.interfaces import ApplicantRepository
+from src.tyuiu_ratings.core.base import ApplicantRepository
 from src.tyuiu_ratings.core.dto import ApplicantReadDTO, ApplicantCreateDTO
 
 

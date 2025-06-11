@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from .domain import Profile, Exam, Applicant, RatingPosition, RatingHistory
+from .domain import Profile, Exam, Applicant, Rating, RatingHistory
 from ..constants import (
     MIN_GPA,
     MAX_GPA,
@@ -47,7 +47,7 @@ class ApplicantRecommendDTO(BaseModel):
     exams: list[Exam]
 
 
-class RatingPositionCreateDTO(RatingPosition):
+class RatingCreateDTO(Rating):
     applicant_id: int
 
 

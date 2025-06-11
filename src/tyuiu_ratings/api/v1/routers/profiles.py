@@ -5,7 +5,7 @@ from fastapi import APIRouter, status, HTTPException
 from dishka.integrations.fastapi import FromDishka, DishkaRoute
 
 from src.tyuiu_ratings.core.domain import Profile
-from src.tyuiu_ratings.core.interfaces import ProfileRepository
+from src.tyuiu_ratings.core.base import ProfileRepository
 from src.tyuiu_ratings.core.dto import ProfileReadDTO, ApplicantReadDTO
 
 
@@ -25,7 +25,13 @@ async def create_profile(
         profile: Profile,
         profile_repository: FromDishka[ProfileRepository]
 ) -> ProfileReadDTO:
-    return await profile_repository.create(profile)
+    created_profile = await profile_repository.create(profile)
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error while creating profile"
+        )
+    return created_profile
 
 
 @profiles_router.get(
@@ -39,7 +45,7 @@ async def get_profile(
 ) -> ProfileReadDTO:
     profile = await profile_repository.read(user_id)
     if not profile:
-        raise HTTPException(status_code=404, detail=f"Profile not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Profile not found")
     return profile
 
 
@@ -54,7 +60,7 @@ async def get_applicants(
 ) -> list[ApplicantReadDTO]:
     applicants = await profile_repository.get_applicants(user_id)
     if not applicants:
-        raise HTTPException(status_code=404, detail="Applicants not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Applicants not found")
     return applicants
 
 
@@ -69,7 +75,7 @@ async def update_profile(
 ) -> ProfileReadDTO:
     updated_profile = await profile_repository.update(profile)
     if not updated_profile:
-        raise HTTPException(status_code=404, detail=f"Profile doesn't exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile doesn't exist")
     return updated_profile
 
 
@@ -84,5 +90,5 @@ async def delete_profile(
 ) -> ProfileReadDTO:
     deleted_profile = await profile_repository.delete(user_id)
     if not deleted_profile:
-        raise HTTPException(status_code=404, detail="Profile doesn't exist")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile doesn't exist")
     return deleted_profile

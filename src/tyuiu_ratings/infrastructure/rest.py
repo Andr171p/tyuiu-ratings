@@ -8,7 +8,7 @@ import aiohttp
 from ..core.domain import Notification
 from ..core.exception import PredictionError, RecommendationError, TelegramError
 from ..core.dto import ApplicantPredictDTO, ApplicantRecommendDTO, RecommendationDTO, PredictionDTO
-from ..core.interfaces import ClassifierService, RecommendationService, TelegramUserService
+from ..core.base import ClassifierService, RecommendationService, TelegramUserService
 
 
 class ClassifierAPI(ClassifierService):
@@ -26,16 +26,13 @@ class ClassifierAPI(ClassifierService):
                     headers=headers,
                     json=applicant.model_dump()
                 ) as response:
-                    data = await response.json()
-            return PredictionDTO.model_validate(data)
+                    prediction = await response.json()
+            return PredictionDTO.model_validate(prediction)
         except aiohttp.ClientError as e:
             self.logger.error("Error while predict: %s", e)
             raise PredictionError(f"Error while predict: {e}") from e
 
-    async def predict_batch(
-            self,
-            applicants: list[ApplicantPredictDTO]
-    ) -> Optional[list[PredictionDTO]]:
+    async def predict_batch(self, applicants: list[ApplicantPredictDTO]) -> list[PredictionDTO]:
         try:
             url = f"{self.base_url}/api/v1/classifier/predict"
             headers = {"Content-Type": "application/json; charset=UTF-8"}
@@ -46,8 +43,8 @@ class ClassifierAPI(ClassifierService):
                     headers=headers,
                     json=applicants
                 ) as response:
-                    data = await response.json()
-            return [PredictionDTO.model_validate(prediction) for prediction in data]
+                    predictions = await response.json()
+            return [PredictionDTO.model_validate(prediction) for prediction in predictions]
         except aiohttp.ClientError as e:
             self.logger.error("Error while predict batch: %s", e)
             raise PredictionError(f"Error while predict batch: {e}") from e
@@ -62,7 +59,7 @@ class RecommendationAPI(RecommendationService):
             self,
             applicant: ApplicantRecommendDTO,
             top_n: int
-    ) -> Optional[list[RecommendationDTO]]:
+    ) -> list[RecommendationDTO]:
         url = f"{self.base_url}/api/v1/recommendations/?top_n={top_n}"
         headers = {"Content-Type": "application/json; charset=UTF-8"}
         try:

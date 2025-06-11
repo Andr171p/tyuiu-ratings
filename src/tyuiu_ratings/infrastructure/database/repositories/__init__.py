@@ -1,9 +1,9 @@
 __all__ = (
     "SQLProfileRepository",
     "SQLApplicantRepository",
-    "SQLRatingPositionRepository"
+    "SQLRatingRepository"
 )
 
 from .profile import SQLProfileRepository
 from .applicant import SQLApplicantRepository
-from .rating_position import SQLRatingPositionRepository
+from .rating import SQLRatingRepository
