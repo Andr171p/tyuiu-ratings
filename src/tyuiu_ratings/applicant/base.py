@@ -5,7 +5,8 @@ from .dto import (
     ApplicantRecommend,
     ApplicantCreate,
     Prediction,
-    Recommendation
+    Recommendation,
+    CreatedApplicant
 )
 
 
@@ -25,3 +26,9 @@ class RecommendationService(ABC):
 class ApplicantRepository(ABC):
     @abstractmethod
     async def bulk_create(self, applicants: list[ApplicantCreate]) -> None: pass
+
+    @abstractmethod
+    async def read(self, applicant_id: int) -> list[CreatedApplicant]: pass
+
+    @abstractmethod
+    async def sort_by_probability(self, applicant_id: int) -> list[CreatedApplicant]: pass

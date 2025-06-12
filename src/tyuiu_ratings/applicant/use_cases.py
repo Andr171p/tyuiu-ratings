@@ -22,7 +22,7 @@ class UpdateApplicantsUseCase:
     async def __call__(self, applicants: list[ApplicantUpdateEvent]) -> None:
         predictions = await self._get_predictions(applicants)
         await self._update_applicants(applicants, predictions)
-        await self._create_ratings(applicants)
+        await self._save_ratings(applicants)
 
     async def _get_predictions(self, applicants: list[Applicant]) -> list[Prediction]:
         applicant_predicts = [
@@ -46,7 +46,7 @@ class UpdateApplicantsUseCase:
         ]
         await self._applicant_repository.bulk_create(applicants_create)
 
-    async def _create_ratings(self, applicants: list[Applicant]) -> None:
+    async def _save_ratings(self, applicants: list[Applicant]) -> None:
         from ..rating.dto import RatingCreation
         await self._rating_repository.bulk_create([
             RatingCreation(
@@ -56,3 +56,4 @@ class UpdateApplicantsUseCase:
             )
             for applicant in applicants
         ])
+

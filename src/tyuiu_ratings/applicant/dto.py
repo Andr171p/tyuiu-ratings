@@ -65,3 +65,10 @@ class Prediction(BaseModel):
 class Recommendation(BaseModel):
     direction_id: int
     direction: str
+
+
+class RerankedPriority(BaseModel):
+    """Ре ранжированное направление подготовки по вероятности поступления"""
+    priority: int
+    direction: str
+    probability: float
