@@ -36,7 +36,7 @@ class ClassifierAPI(ClassifierService):
         try:
             url = f"{self.base_url}/api/v1/classifier/predict"
             headers = {"Content-Type": "application/json; charset=UTF-8"}
-            applicants = {"applicants": applicant.model_dump() for applicant in applicants}
+            applicants = {"applicant": applicant.model_dump() for applicant in applicants}
             async with aiohttp.ClientSession() as session:
                 async with session.post(
                     url=url,

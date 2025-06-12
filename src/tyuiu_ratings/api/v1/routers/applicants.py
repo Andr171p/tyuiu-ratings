@@ -18,7 +18,7 @@ from src.tyuiu_ratings.core.constants import MIN_TOP_N, MAX_TOP_N
 
 
 applicants_router = APIRouter(
-    prefix="/api/v1/applicants",
+    prefix="/api/v1/applicant",
     tags=["Applicants"],
     route_class=DishkaRoute
 )

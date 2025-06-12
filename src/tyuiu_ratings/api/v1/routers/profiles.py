@@ -50,7 +50,7 @@ async def get_profile(
 
 
 @profiles_router.get(
-    path="/{user_id}/applicants",
+    path="/{user_id}/applicant",
     status_code=status.HTTP_200_OK,
     response_model=list[ApplicantReadDTO]
 )

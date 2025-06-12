@@ -58,7 +58,7 @@ class ProfileOrm(Base):
     
     
 class ApplicantOrm(Base):
-    __tablename__ = "applicants"
+    __tablename__ = "applicant"
 
     applicant_id: Mapped[int] = mapped_column(
         ForeignKey("profiles.applicant_id"),
@@ -74,7 +74,7 @@ class ApplicantOrm(Base):
     probability: Mapped[float]
     original: Mapped[bool]
     
-    profile: Mapped["ProfileOrm"] = relationship(back_populates="applicants")
+    profile: Mapped["ProfileOrm"] = relationship(back_populates="applicant")
 
     __table_args__ = (
         Index("direction_index", "direction"),
