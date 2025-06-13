@@ -58,11 +58,11 @@ class UpdateApplicantsUseCase:
             predictions: list[Prediction]
     ) -> None:
         applicants_create = [
-            applicant.to_create_dto(prediction.probability)
+            applicant.to_create(prediction.probability)
             for applicant, prediction in zip(applicants, predictions)
         ]
         try:
-            await self._applicant_repository.bulk_create(applicants_create)
+            await self._applicant_repository.bulk_upsert(applicants_create)
         except ApplicantsCreationError:
             return
 

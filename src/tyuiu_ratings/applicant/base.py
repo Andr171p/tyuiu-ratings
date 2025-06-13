@@ -30,7 +30,7 @@ class RecommendationService(ABC):
 
 class ApplicantRepository(ABC):
     @abstractmethod
-    async def bulk_create(self, applicants: list[ApplicantCreate]) -> None: pass
+    async def bulk_upsert(self, applicants: list[ApplicantCreate]) -> None: pass
 
     @abstractmethod
     async def read(self, applicant_id: int) -> list[CreatedApplicant]: pass

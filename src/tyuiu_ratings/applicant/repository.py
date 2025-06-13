@@ -18,14 +18,14 @@ class SQLApplicantRepository(ApplicantRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def bulk_create(self, applicants: list[ApplicantCreate]) -> None:
+    async def bulk_upsert(self, applicants: list[ApplicantCreate]) -> None:
         try:
             for applicant in applicants:
                 stmt = (
                     insert(ApplicantOrm)
                     .values(**applicant.model_dump())
                     .on_conflict_do_update(
-                        index_elements=["applicant_id"],
+                        constraint="uq_applicant_direction",
                         set_=dict(applicant.model_dump())
                     )
                 )

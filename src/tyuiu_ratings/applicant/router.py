@@ -132,7 +132,6 @@ async def recommend_directions(
         top_n: Annotated[
             int,
             Query(
-                default=DEFAULT_TOP_N,
                 ge=MIN_TOP_N,
                 le=MAX_TOP_N,
                 description="Величина выборки рекомендаций"

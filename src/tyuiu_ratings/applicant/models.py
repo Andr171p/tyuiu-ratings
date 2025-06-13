@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from ..profile.models import ProfileOrm
 
-from sqlalchemy import ForeignKey, Index, CheckConstraint
+from sqlalchemy import ForeignKey, Index, CheckConstraint, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..database import Base
@@ -11,7 +11,7 @@ from ..constants import MIN_POINTS, MAX_POINTS, MIN_BONUS_POINTS, MAX_BONUS_POIN
 
 
 class ApplicantOrm(Base):
-    __tablename__ = "applicant"
+    __tablename__ = "applicants"
 
     applicant_id: Mapped[int] = mapped_column(
         ForeignKey("profiles.applicant_id"),
@@ -30,7 +30,8 @@ class ApplicantOrm(Base):
     profile: Mapped["ProfileOrm"] = relationship(back_populates="applicants")
 
     __table_args__ = (
-        Index("direction_index", "direction"),
+        Index("ix_applicant_composite", "applicant_id", "direction"),
+        UniqueConstraint("applicant_id", "direction", name="uq_applicant_direction"),
         CheckConstraint(
             f"points >= {MIN_POINTS} AND points <= {MAX_POINTS}",
             "check_points_range"
