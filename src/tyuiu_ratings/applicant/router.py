@@ -1,10 +1,16 @@
-from fastapi import APIRouter, status, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, status, HTTPException, Query
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
 from .base import ApplicantRepository
-from .dto import RerankedPriority, CreatedApplicant
-from .exceptions import ApplicantsReadingError
+from .schemas import CompetitionList
+from .use_cases import RecommendDirectionsUseCase
+from .dto import RerankedPriority, CreatedApplicant, PredictedRecommendation
+from .exceptions import ApplicantsReadingError, DirectionsRecommendationError
+
+from ..constants import DEFAULT_TOP_N, MIN_TOP_N, MAX_TOP_N
 
 
 applicants_router = APIRouter(
@@ -40,6 +46,63 @@ async def get_applicants(
 
 
 @applicants_router.get(
+    path="/{applicant_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=CreatedApplicant,
+    summary="Возвращает абитуриента по его ID и направлению подготовки"
+)
+async def get_applicant(
+        applicant_id: int,
+        direction: Annotated[str, Query(..., description="Направление подготовки")],
+        applicant_repository: Depends[ApplicantRepository]
+) -> CreatedApplicant:
+    try:
+        applicant = await applicant_repository.get_applicant(applicant_id, direction)
+        if not applicant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Applicant not found"
+            )
+        return applicant
+    except ApplicantsReadingError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error while receiving applicant"
+        )
+
+
+@applicants_router.get(
+    path="/{applicant_id}/competition-list",
+    status_code=status.HTTP_200_OK,
+    response_model=CompetitionList,
+    summary="Возвращает интерактивный конкурсный список на направление подготовки"
+)
+async def get_competition_list(
+        applicant_id: int,
+        direction: Annotated[str, Query(..., description="Направление подготовки")],
+        applicant_repository: Depends[ApplicantRepository]
+) -> CompetitionList:
+    try:
+        applicants = await applicant_repository.get_applicants_by_direction(direction)
+        if not applicants:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No applicant yet"
+            )
+        return CompetitionList(
+            applicant_id=applicant_id,
+            institute=applicants[0].institute,
+            direction=direction,
+            applicants=applicants
+        )
+    except ApplicantsReadingError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error while receiving competition list"
+        )
+
+
+@applicants_router.get(
     path="/{applicant_id}/rerank-priorities",
     status_code=status.HTTP_200_OK,
     response_model=list[RerankedPriority],
@@ -56,3 +119,32 @@ async def rerank_priorities(
             detail="Error while reranking priorities"
         )
     return applicants
+
+
+@applicants_router.get(
+    path="/{applicant_id}/recommend-directions",
+    status_code=status.HTTP_200_OK,
+    response_model=list[PredictedRecommendation],
+    summary="Возвращает размеченный список рекомендаций"
+)
+async def recommend_directions(
+        applicant_id: int,
+        top_n: Annotated[
+            int,
+            Query(
+                default=DEFAULT_TOP_N,
+                ge=MIN_TOP_N,
+                le=MAX_TOP_N,
+                description="Величина выборки рекомендаций"
+            )
+        ],
+        recommend_directions_use_case: Depends[RecommendDirectionsUseCase]
+) -> list[PredictedRecommendation]:
+    try:
+        recommendations = await recommend_directions_use_case(applicant_id, top_n=top_n)
+        return recommendations
+    except DirectionsRecommendationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Direction recommendation error: {e}"
+        )

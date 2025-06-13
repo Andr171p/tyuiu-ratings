@@ -15,6 +15,7 @@ from .exceptions import (
     ProfileUpdatingError,
     ProfileDeletingError
 )
+
 from ..applicant.dto import CreatedApplicant
 from ..rating.schemas import Rating
 
@@ -136,6 +137,11 @@ async def get_applicants(
 ) -> list[CreatedApplicant]:
     try:
         applicants = await profile_repository.get_applicants(user_id)
+        if not applicants:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not applicants yet"
+            )
         return applicants
     except ProfileReadingError:
         raise HTTPException(
@@ -149,7 +155,7 @@ async def get_applicants(
     status_code=status.HTTP_200_OK,
     response_model=list[Rating],
     summary=""""Возвращает историю изменения рейтинга 
-    на конкретное направление подготовки с списках за каждый день"""
+    на конкретное направление подготовки в списках за каждый день"""
 )
 async def get_rating_history(
         user_id: UUID,
@@ -158,6 +164,11 @@ async def get_rating_history(
 ) -> list[Rating]:
     try:
         ratings = await profile_repository.get_ratings(user_id, direction)
+        if not ratings:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Not ratings yet"
+            )
         return ratings
     except ProfileReadingError:
         raise HTTPException(

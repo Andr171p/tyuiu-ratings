@@ -39,3 +39,11 @@ class Applicant(BaseModel):
             original=self.original,
             probability=probability
         )
+
+
+class CompetitionList(BaseModel):
+    """Конкурсный список абитуриентов на конкретное направление"""
+    applicant_id: int
+    institute: str
+    direction: str
+    applicants: list[Applicant]

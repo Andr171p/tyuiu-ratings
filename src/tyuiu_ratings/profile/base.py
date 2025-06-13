@@ -26,7 +26,7 @@ class ProfileRepository(ABC):
     async def delete(self, user_id: UUID) -> bool: pass
 
     @abstractmethod
-    async def get_applicants(self, user_id: UUID) -> list[CreatedApplicant]: pass
+    async def get_applicants(self, user_id: UUID) -> list["CreatedApplicant"]: pass
 
     @abstractmethod
-    async def get_ratings(self, user_id: UUID, direction: str) -> list[Rating]: pass
+    async def get_ratings(self, user_id: UUID, direction: str) -> list["Rating"]: pass

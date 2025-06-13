@@ -19,5 +19,10 @@ class ProfileRefactoring(BaseModel):
     """Редактируемый профиль"""
     applicant_id: Optional[int] = None
     gender: Optional[Literal["male", "female"]] = None
-    gpa: Optional[None] = Field(default=None, ge=MIN_GPA, le=MAX_GPA)
+    gpa: Optional[float] = Field(
+        default=None,
+        ge=MIN_GPA,
+        le=MAX_GPA,
+        validate_default=True
+    )
     exams: Optional[list[Exam]] = None

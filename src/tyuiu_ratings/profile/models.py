@@ -18,7 +18,7 @@ class ExamOrm(Base):
     __tablename__ = "exams"
 
     applicant_id: Mapped[int] = mapped_column(
-        ForeignKey("profiles.applicant_id"),
+        ForeignKey("profiles.applicant_id", ondelete="CASCADE"),
         nullable=False
     )
     subject: Mapped[str]
@@ -40,9 +40,14 @@ class ProfileOrm(Base):
     user_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True), unique=True)
     applicant_id: Mapped[int] = mapped_column(primary_key=True, unique=True)
     gender: Mapped[str]
+    points: Mapped[int]
     gpa: Mapped[float]
 
-    exams: Mapped[list["ExamOrm"]] = relationship(back_populates="profile")
+    exams: Mapped[list["ExamOrm"]] = relationship(
+        back_populates="profile",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
     applicants: Mapped[list["ApplicantOrm"]] = relationship(back_populates="profile")
     ratings: Mapped[list["RatingOrm"]] = relationship(back_populates="profile")
 

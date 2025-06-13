@@ -1,3 +1,8 @@
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..profile.schemas import Profile
+
 from sqlalchemy import select, func
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +11,7 @@ from sqlalchemy.dialects.postgresql import insert
 from .models import ApplicantOrm
 from .base import ApplicantRepository
 from .dto import CreatedApplicant, ApplicantCreate
-from .exceptions import ApplicantsCreationError
+from .exceptions import ApplicantsCreationError, ApplicantsReadingError
 
 
 class SQLApplicantRepository(ApplicantRepository):
@@ -28,7 +33,7 @@ class SQLApplicantRepository(ApplicantRepository):
             await self.session.commit()
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise ApplicantsCreationError(f"Error while bulk creating: {e}")
+            raise ApplicantsCreationError(f"Error while bulk creating: {e}") from e
 
     async def read(self, applicant_id: int) -> list[CreatedApplicant]:
         try:
@@ -42,20 +47,50 @@ class SQLApplicantRepository(ApplicantRepository):
             return [CreatedApplicant.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while reading by applicant id: {e}")
+            raise ApplicantsReadingError(f"Error while reading by applicant id: {e}") from e
 
-    async def get_by_direction(self, direction: str) -> list[CreatedApplicant]:
+    async def get_profile(self, applicant_id: int) -> Optional["Profile"]:
+        try:
+            stmt = (
+                select(ApplicantOrm)
+                .where(ApplicantOrm.applicant_id == applicant_id)
+            )
+            result = await self.session.execute(stmt)
+            profile = result.scalars().first()
+            return Profile.model_validate(profile) if profile else None
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise ApplicantsReadingError(f"Error while reading profile: {e}") from e
+
+    async def get_applicant(self, applicant_id: int, direction: str) -> Optional[CreatedApplicant]:
+        try:
+            stmt = (
+                select(ApplicantOrm)
+                .where(
+                    ApplicantOrm.applicant_id == applicant_id,
+                    ApplicantOrm.direction == direction
+                )
+            )
+            result = await self.session.execute(stmt)
+            applicant = result.scalar_one_or_none()
+            return CreatedApplicant.model_validate(applicant) if applicant else None
+        except SQLAlchemyError as e:
+            await self.session.commit()
+            raise ApplicantsReadingError(f"Error while reading applicant: {e}") from e
+
+    async def get_applicants_by_direction(self, direction: str) -> list[CreatedApplicant]:
         try:
             stmt = (
                 select(ApplicantOrm)
                 .where(ApplicantOrm.direction == direction)
+                .order_by(ApplicantOrm.rank.desc())
             )
             results = await self.session.execute(stmt)
             applicants = results.scalars().all()
             return [CreatedApplicant.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while reading by direction: {e}")
+            raise ApplicantsReadingError(f"Error while reading by direction: {e}") from e
 
     async def paginate(self, page: int, limit: int) -> list[CreatedApplicant]:
         try:
@@ -70,7 +105,7 @@ class SQLApplicantRepository(ApplicantRepository):
             return [CreatedApplicant.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while paginating applicants: {e}")
+            raise ApplicantsReadingError(f"Error while paginating applicants: {e}") from e
 
     async def paginate_by_direction(
             self,
@@ -91,7 +126,7 @@ class SQLApplicantRepository(ApplicantRepository):
             return [CreatedApplicant.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while paginate by direction: {e}")
+            raise ApplicantsReadingError(f"Error while paginate by direction: {e}") from e
 
     async def sort_by_probability(self, applicant_id: int) -> list[CreatedApplicant]:
         try:
@@ -105,7 +140,7 @@ class SQLApplicantRepository(ApplicantRepository):
             return [CreatedApplicant.model_validate(applicant) for applicant in applicants]
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while sorting by probability: {e}")
+            raise ApplicantsReadingError(f"Error while sorting by probability: {e}") from e
 
     async def count(self) -> int:
         try:
@@ -117,4 +152,4 @@ class SQLApplicantRepository(ApplicantRepository):
             return count.scalar()
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise RuntimeError(f"Error while reading count: {e}")
+            raise ApplicantsReadingError(f"Error while reading count: {e}") from e

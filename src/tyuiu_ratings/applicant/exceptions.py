@@ -14,3 +14,11 @@ class ApplicantsCreationError(Exception):
 
 class ApplicantsReadingError(Exception):
     pass
+
+
+class UseCaseError(Exception):
+    pass
+
+
+class DirectionsRecommendationError(UseCaseError):
+    pass

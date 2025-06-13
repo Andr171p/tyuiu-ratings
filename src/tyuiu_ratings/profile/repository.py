@@ -14,8 +14,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import ProfileRepository
 from .dto import CreatedProfile
-from .schemas import Profile
-from .models import ProfileOrm
+from .schemas import Profile, Exam
+from .models import ProfileOrm, ExamOrm
 from .exceptions import (
     ProfileCreationError,
     ProfileReadingError,
@@ -33,11 +33,22 @@ class SQLProfileRepository(ProfileRepository):
         try:
             stmt = (
                 insert(ProfileOrm)
-                .values(**profile.model_dump())
-                .returning(ProfileOrm)
+                .values(**profile.model_dump(exclude={"exams"}))
+            )
+            await self.session.execute(stmt)
+            exams_data = [
+                {"applicant_id": profile.applicant_id, **exam.model_dump()}
+                for exam in profile.exams
+            ]
+            stmt = insert(ExamOrm)
+            await self.session.execute(stmt, exams_data)
+            await self.session.commit()
+            stmt = (
+                select(ProfileOrm)
+                .where(ProfileOrm.applicant_id == profile.applicant_id)
+                .options(selectinload(ProfileOrm.exams))
             )
             result = await self.session.execute(stmt)
-            await self.session.commit()
             created_profile = result.scalar_one()
             return CreatedProfile.model_validate(created_profile)
         except SQLAlchemyError as e:
@@ -50,6 +61,7 @@ class SQLProfileRepository(ProfileRepository):
             stmt = (
                 select(ProfileOrm)
                 .where(ProfileOrm.user_id == user_id)
+                .options(selectinload(ProfileOrm.exams))
             )
             result = await self.session.execute(stmt)
             profile = result.scalar_one_or_none()
@@ -60,12 +72,35 @@ class SQLProfileRepository(ProfileRepository):
             raise ProfileReadingError(f"Error while reading profile: {e}") from e
 
     async def update(self, user_id: UUID, **kwargs) -> Optional[CreatedProfile]:
+        exams: list[Exam] = kwargs.pop("exams", None)
         try:
             stmt = (
                 update(ProfileOrm)
                 .where(ProfileOrm.user_id == user_id)
                 .values(**kwargs)
                 .returning(ProfileOrm)
+            )
+            result = await self.session.execute(stmt)
+            profile = result.scalar_one_or_none()
+            if not profile:
+                return None
+            if exams is not None:
+                stmt = (
+                    delete(ExamOrm)
+                    .where(ExamOrm.applicant_id == profile.applicant_id)
+                )
+                await self.session.execute(stmt)
+                exams_data = [
+                    {"applicant_id": profile.applicant_id, **exam}
+                    for exam in exams
+                ]
+                stmt = insert(ExamOrm)
+                await self.session.execute(stmt, exams_data)
+            await self.session.commit()
+            stmt = (
+                select(ProfileOrm)
+                .where(ProfileOrm.applicant_id == profile.applicant_id)
+                .options(selectinload(ProfileOrm.exams))
             )
             result = await self.session.execute(stmt)
             profile = result.scalar_one_or_none()
@@ -83,7 +118,7 @@ class SQLProfileRepository(ProfileRepository):
             )
             result = await self.session.execute(stmt)
             await self.session.commit()
-            return result.rowcount() > 0
+            return result.rowcount > 0
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while deleting profile: {e}")
@@ -91,13 +126,12 @@ class SQLProfileRepository(ProfileRepository):
 
     async def get_applicants(self, user_id: UUID) -> list["CreatedApplicant"]:
         from ..applicant.dto import CreatedApplicant
+        from ..applicant.models import ApplicantOrm
         try:
             stmt = (
-                select(ProfileOrm.applicants)
+                select(ApplicantOrm)
+                .join(ProfileOrm.applicants)
                 .where(ProfileOrm.user_id == user_id)
-                .options(
-                    selectinload(ProfileOrm.applicants)
-                )
             )
             results = await self.session.execute(stmt)
             applicants = results.scalars().all()
@@ -109,13 +143,12 @@ class SQLProfileRepository(ProfileRepository):
 
     async def get_ratings(self, user_id: UUID, direction: str) -> list["Rating"]:
         from ..rating.schemas import Rating
+        from ..rating.models import RatingOrm
         try:
             stmt = (
-                select(ProfileOrm.ratings)
+                select(RatingOrm)
+                .join(ProfileOrm.ratings)
                 .where(ProfileOrm.user_id == user_id)
-                .options(
-                    selectinload(ProfileOrm.ratings)
-                )
             )
             results = await self.session.execute(stmt)
             ratings = results.scalars().all()

@@ -30,11 +30,12 @@ class ApplicantUpdateEvent(Applicant):
 
 class ApplicantCreate(Applicant):
     """Модель для создания ресурса"""
-    probability: float
+    probability: float  # Вероятность поступления
 
 
 class CreatedApplicant(Applicant):
     """Абитуриент из базы данных (уже созданный)"""
+    probability: float
     created_at: datetime
     updated_at: datetime
 
@@ -72,3 +73,11 @@ class RerankedPriority(BaseModel):
     priority: int
     direction: str
     probability: float
+
+
+class PredictedRecommendation(BaseModel):
+    """Рекомендация с вероятностью поступления"""
+    direction_id: int
+    direction: str
+    probability: float
+    status: Literal["BETTER", "SAME", "LESS"] = "SAME"  # BETTER если рекомендация лучше текущего выбора

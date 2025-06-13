@@ -1,3 +1,8 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..profile.models import ProfileOrm
+
 from sqlalchemy import ForeignKey, Index, CheckConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,14 +20,14 @@ class ApplicantOrm(Base):
     )
     points: Mapped[int]
     bonus_points: Mapped[int]
-    rating: Mapped[int]
+    rank: Mapped[int]
     institute: Mapped[str] = mapped_column(nullable=False)
     direction: Mapped[str] = mapped_column(nullable=False)
     priority: Mapped[int] = mapped_column(nullable=False)
     probability: Mapped[float]
     original: Mapped[bool]
 
-    profile: Mapped["ProfileOrm"] = relationship(back_populates="applicant")
+    profile: Mapped["ProfileOrm"] = relationship(back_populates="applicants")
 
     __table_args__ = (
         Index("direction_index", "direction"),

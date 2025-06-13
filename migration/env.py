@@ -7,8 +7,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from src.tyuiu_ratings.infrastructure.database.base import Base
-from src.tyuiu_ratings.infrastructure.database.models import ProfileOrm, ApplicantOrm, RatingOrm
+from src.tyuiu_ratings.database import Base
+
+from src.tyuiu_ratings.applicant.models import ApplicantOrm
+from src.tyuiu_ratings.profile.models import ExamOrm, ProfileOrm
+from src.tyuiu_ratings.rating.models import RatingOrm
 
 from src.tyuiu_ratings.settings import PostgresSettings
 
