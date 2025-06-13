@@ -1,7 +1,7 @@
 from faststream import Logger
 from faststream.rabbit import RabbitRouter
 
-from dishka.integrations.base import FromDishka
+from dishka.integrations.base import FromDishka as Depends
 
 from .dto import ApplicantUpdateEvent
 from .use_cases import UpdateApplicantsUseCase
@@ -13,7 +13,7 @@ applicants_router = RabbitRouter()
 @applicants_router.subscriber("applicants")
 async def update_applicants(
         applicants: list[ApplicantUpdateEvent],
-        update_applicants_use_case: FromDishka[UpdateApplicantsUseCase],
+        update_applicants_use_case: Depends[UpdateApplicantsUseCase],
         logger: Logger
 ) -> None:
     logger.info("Start update applicants")
