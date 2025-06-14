@@ -3,9 +3,9 @@ from apscheduler.triggers.cron import CronTrigger
 
 import pytz
 
-from ..ioc import container
-from ..constants import CURRENT_TIMEZONE, BROADCAST_HOURS, BROADCAST_MINUTES
-from ..core.use_cases.notification import BroadcastNotificationsUseCase
+from src.tyuiu_ratings.ioc import container
+from src.tyuiu_ratings.constants import CURRENT_TIMEZONE, BROADCAST_HOURS, BROADCAST_MINUTES
+from src.tyuiu_ratings.core.use_cases.notification import BroadcastNotificationsUseCase
 
 
 async def broadcast_notifications_task() -> None:
