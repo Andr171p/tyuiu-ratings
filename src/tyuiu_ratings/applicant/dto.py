@@ -1,14 +1,12 @@
-from typing import Literal, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..profile.schemas import Exam
+from typing import Literal
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from .schemas import Applicant
 
+from ..types import ExamList
 from ..utils import mapping_direction
 from ..constants import (
     PREDICTED_YEAR,
@@ -54,7 +52,9 @@ class ApplicantRecommend(BaseModel):
     gender: Literal["male", "female"] = DEFAULT_GENDER
     gpa: float = Field(ge=MIN_GPA, le=MAX_GPA)
     points: int = Field(ge=MIN_POINTS, le=MAX_POINTS)
-    exams: list["Exam"]
+    exams: ExamList
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Prediction(BaseModel):
@@ -81,3 +81,11 @@ class PredictedRecommendation(BaseModel):
     direction: str
     probability: float
     status: Literal["BETTER", "SAME", "LESS"] = "SAME"  # BETTER если рекомендация лучше текущего выбора
+
+
+class CompetitionList(BaseModel):
+    """Конкурсный список абитуриентов на конкретное направление"""
+    applicant_id: int
+    institute: str
+    direction: str
+    applicants: list[CreatedApplicant]

@@ -130,7 +130,7 @@ class SQLProfileRepository(ProfileRepository):
         try:
             stmt = (
                 select(ApplicantOrm)
-                .join(ProfileOrm.applicants)
+                .join(ProfileOrm, ApplicantOrm.applicant_id == ProfileOrm.applicant_id)
                 .where(ProfileOrm.user_id == user_id)
             )
             results = await self.session.execute(stmt)
@@ -147,8 +147,11 @@ class SQLProfileRepository(ProfileRepository):
         try:
             stmt = (
                 select(RatingOrm)
-                .join(ProfileOrm.ratings)
-                .where(ProfileOrm.user_id == user_id)
+                .join(ProfileOrm, RatingOrm.applicant_id == ProfileOrm.applicant_id)
+                .where(
+                    ProfileOrm.user_id == user_id,
+                    RatingOrm.direction == direction
+                )
             )
             results = await self.session.execute(stmt)
             ratings = results.scalars().all()

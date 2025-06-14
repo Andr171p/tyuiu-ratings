@@ -29,7 +29,7 @@ class ExamOrm(Base):
 
     __table_args__ = (
         CheckConstraint(
-            f"points BETWEEN {MAX_EXAM_POINTS} AND {MIN_EXAM_POINTS}",
+            f"points BETWEEN {MIN_EXAM_POINTS} AND {MAX_EXAM_POINTS}",
             "check_exam_points_range"
         ),
     )

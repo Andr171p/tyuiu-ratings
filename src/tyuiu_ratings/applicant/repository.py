@@ -5,6 +5,7 @@ if TYPE_CHECKING:
 
 from sqlalchemy import select, func
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -50,10 +51,13 @@ class SQLApplicantRepository(ApplicantRepository):
             raise ApplicantsReadingError(f"Error while reading by applicant id: {e}") from e
 
     async def get_profile(self, applicant_id: int) -> Optional["Profile"]:
+        from ..profile.models import ProfileOrm
+        from ..profile.schemas import Profile
         try:
             stmt = (
-                select(ApplicantOrm)
-                .where(ApplicantOrm.applicant_id == applicant_id)
+                select(ProfileOrm)
+                .where(ProfileOrm.applicant_id == applicant_id)
+                .options(selectinload(ProfileOrm.exams))
             )
             result = await self.session.execute(stmt)
             profile = result.scalars().first()

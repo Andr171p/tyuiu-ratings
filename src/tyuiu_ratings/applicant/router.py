@@ -5,12 +5,11 @@ from fastapi import APIRouter, status, HTTPException, Query
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
 from .base import ApplicantRepository
-from .schemas import CompetitionList
 from .use_cases import RecommendDirectionsUseCase
-from .dto import RerankedPriority, CreatedApplicant, PredictedRecommendation
+from .dto import RerankedPriority, CreatedApplicant, PredictedRecommendation, CompetitionList
 from .exceptions import ApplicantsReadingError, DirectionsRecommendationError
 
-from ..constants import DEFAULT_TOP_N, MIN_TOP_N, MAX_TOP_N
+from ..constants import MIN_TOP_N, MAX_TOP_N
 
 
 applicants_router = APIRouter(

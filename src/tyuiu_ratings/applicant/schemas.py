@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .dto import ApplicantCreate
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..constants import (
     MIN_POINTS,
@@ -26,6 +26,8 @@ class Applicant(BaseModel):
     bonus_points: int = Field(ge=MIN_BONUS_POINTS, le=MAX_BONUS_POINTS)  # Дополнительные баллы
     original: bool  # Сдан оригинал (True если сдан, False если нет)
 
+    model_config = ConfigDict(from_attributes=True)
+
     def to_create(self, probability: float) -> "ApplicantCreate":
         from .dto import ApplicantCreate
         return ApplicantCreate(
@@ -39,11 +41,3 @@ class Applicant(BaseModel):
             original=self.original,
             probability=probability
         )
-
-
-class CompetitionList(BaseModel):
-    """Конкурсный список абитуриентов на конкретное направление"""
-    applicant_id: int
-    institute: str
-    direction: str
-    applicants: list[Applicant]

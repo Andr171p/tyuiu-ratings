@@ -63,8 +63,11 @@ class RecommendationAPI(RecommendationService):
                 ) as response:
                     data = await response.json()
             return [
-                Recommendation(direction_id=direction["direction_id"], direction=direction["name"])
-                for direction in data["directions"]
+                Recommendation(
+                    direction_id=recommendation["direction_id"],
+                    direction=recommendation["name"]
+                )
+                for recommendation in data["recommendations"]
             ]
         except aiohttp.ClientError as e:
             self.logger.error(f"Error while recommend directions: {e}")
