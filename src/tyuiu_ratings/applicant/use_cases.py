@@ -68,7 +68,7 @@ class UpdateApplicantsUseCase:
 
     async def _save_ratings(self, applicants: list[Applicant]) -> None:
         from ..rating.dto import RatingCreation
-        await self._rating_repository.bulk_create([
+        await self._rating_repository.bulk_upsert([
             RatingCreation(
                 applicant_id=applicant.applicant_id,
                 direction=applicant.direction,

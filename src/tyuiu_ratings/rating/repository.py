@@ -14,7 +14,7 @@ class SQLRatingRepository(RatingRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def bulk_create(self, ratings: list[RatingCreation]) -> None:
+    async def bulk_upsert(self, ratings: list[RatingCreation]) -> None:
         try:
             for rating in ratings:
                 stmt = (
