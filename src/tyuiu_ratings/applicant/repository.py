@@ -4,9 +4,9 @@ if TYPE_CHECKING:
     from ..profile.schemas import Profile
 
 from sqlalchemy import select, func
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.dialects.postgresql import insert
 
 from .models import ApplicantOrm
 from .base import ApplicantRepository
@@ -25,8 +25,8 @@ class SQLApplicantRepository(ApplicantRepository):
                     insert(ApplicantOrm)
                     .values(**applicant.model_dump())
                     .on_conflict_do_update(
-                        constraint="uq_applicant_direction",
-                        set_=dict(applicant.model_dump())
+                        constraint="unique_applicant_direction",
+                        set_=applicant.model_dump()
                     )
                 )
                 await self.session.execute(stmt)

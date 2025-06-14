@@ -1,12 +1,7 @@
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..profile.models import ProfileOrm
-
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import DateTime, UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ..database import Base
 
@@ -14,13 +9,11 @@ from ..database import Base
 class RatingOrm(Base):
     __tablename__ = "ratings"
 
-    applicant_id: Mapped[int] = mapped_column(
-        ForeignKey("profiles.applicant_id"),
-        unique=False,
-        nullable=False
-    )
+    applicant_id: Mapped[int] = mapped_column(unique=False, nullable=False)
     direction: Mapped[str] = mapped_column(unique=False, nullable=False)
     rank: Mapped[int]
     date: Mapped[datetime] = mapped_column(DateTime)
 
-    profile: Mapped["ProfileOrm"] = relationship(back_populates="ratings")
+    __table_args__ = (
+        UniqueConstraint("applicant_id", "direction", "date", name="unique_rating"),
+    )

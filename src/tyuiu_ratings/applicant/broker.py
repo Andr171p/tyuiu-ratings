@@ -17,5 +17,6 @@ async def update_applicants(
         logger: Logger
 ) -> None:
     logger.info("Start update applicants")
+    logger.info(f"{applicants[0]}")
     await update_applicants_use_case(applicants)
     logger.info("Finished updating applicants")

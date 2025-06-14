@@ -1,10 +1,10 @@
-from datetime import datetime
-
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .schemas import Rating
+from .dto import RatingCreation
 from .models import RatingOrm
 from .base import RatingRepository
 from .exceptions import RatingCreationError, RatingReadingError
@@ -14,23 +14,19 @@ class SQLRatingRepository(RatingRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def bulk_create(self, rating_positions: list[Rating]) -> None:
-        today = datetime.today()
+    async def bulk_create(self, ratings: list[RatingCreation]) -> None:
         try:
-            rating_orms: list[RatingOrm] = []
-            for rating_position in rating_positions:
+            for rating in ratings:
                 stmt = (
-                    select(RatingOrm)
-                    .where(
-                        RatingOrm.applicant_id == rating_position.applicant_id,
-                        RatingOrm.date == today
+                    insert(RatingOrm)
+                    .values(**rating.model_dump())
+                    .on_conflict_do_update(
+                        constraint="unique_rating",
+                        set_=rating.model_dump()
                     )
                 )
-                existing = await self.session.execute(stmt)
-                if not existing:
-                    rating_orms.append(RatingOrm(**rating_position.model_dump()))
-                self.session.add_all(rating_orms)
-                await self.session.commit()
+                await self.session.execute(stmt)
+            await self.session.commit()
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise RatingCreationError(f"Error while creating rating: {e}") from e
