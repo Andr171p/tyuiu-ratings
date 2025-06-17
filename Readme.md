@@ -29,7 +29,7 @@
 }
 ```
 
- * <b>sublect</b> - Предмет ЕГЭ. Доступные предметы:
+ * <b>subject</b> - Предмет ЕГЭ. Доступные предметы:
      - Русский язык
      - Математика </br>
      <code>* Математика только профильная, базовую указывать не надо.</code>
@@ -71,6 +71,8 @@
 ### Методы
 
  * ### POST ``
+
+Создаёт профиль абитуриента.
  
 <b>Request body</b><sup>required</sup>
 ```json
@@ -114,4 +116,48 @@
 Ошибка при создании ресурса.
 ```json
 {"detail": "Error while creating profile"}
+```
+
+ * ### GET `/{user_id}`
+
+Получает профиль абитуриента.
+
+<b>Parameters</b></br>
+
+ | name                       | description                                |
+ |----------------------------|--------------------------------------------|
+ | user_id<sup>required</sup> | ID абитуриента полученный при регистрации. |
+
+<b>Response</b></br>
+
+ * Status code: <b>200 OK</b></br>
+Успешное получение ресурса.
+```json
+{
+  "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "applicant_id": 0,
+  "gender": "male",
+  "points": 310,
+  "gpa": 3,
+  "exams": [
+    {
+      "subject": "Русский язык",
+      "points": 100
+    }
+  ],
+  "created_at": "2025-06-17T12:47:15.861Z",
+  "updated_at": "2025-06-17T12:47:15.861Z"
+}
+```
+
+ * Status code: <b>404 Not found</b></br>
+Профиль с таким ID не найден.
+```json
+{"detail": "Profile not found"}
+```
+
+ * Status code: <b>500 Internal server error</b></br>
+Ошибка при получении профиля.
+```json
+{"detail": "Error while receiving profile"}
 ```
