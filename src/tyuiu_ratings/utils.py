@@ -1,11 +1,41 @@
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Callable, TypeVar, Any
 
 if TYPE_CHECKING:
     from .rating.schemas import Rating
 
+import time
+from functools import wraps
+from logging import Logger
+
 import pandas as pd
 
 from .constants import DIRECTIONS_MAPPING_CSV
+
+
+T = TypeVar("T", bound=Callable[..., Any])
+
+
+def timer(logger: Logger) -> Callable[[T], T]:
+    def decorator(func: T) -> T:
+        @wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            start_time = time.perf_counter()
+            try:
+                result = await func(*args, **kwargs)
+                return result
+            finally:
+                elapsed = time.perf_counter() - start_time
+                logger.info(
+                    f"Function {func.__name__} executed in {elapsed:.4f} seconds",
+                    extra={
+                        "function": func.__name__,
+                        "execution_time": elapsed,
+                        "args": args,
+                        "kwargs": kwargs
+                    }
+                )
+        return wrapper
+    return decorator
 
 
 def calculate_pages(total_count: int, limit: int) -> int:
