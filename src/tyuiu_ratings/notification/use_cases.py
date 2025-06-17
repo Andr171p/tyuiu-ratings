@@ -10,6 +10,7 @@ from .factory import NotificationFactory
 
 from ..applicant.base import ApplicantRepository
 from ..applicant.dto import CreatedApplicant
+from ..profile.base import ProfileRepository
 from ..rating.base import RatingRepository
 
 from ..utils import calculate_pages
@@ -29,12 +30,12 @@ class BroadcastNotificationsUseCase:
             self,
             applicant_repository: ApplicantRepository,
             rating_repository: RatingRepository,
-            notification_factory: NotificationFactory,
+            profile_repository: ProfileRepository,
             broker: BaseBroker
     ) -> None:
         self._applicant_repository = applicant_repository
         self._rating_repository = rating_repository
-        self._notification_factory = notification_factory
+        self._notification_factory = NotificationFactory(profile_repository)
         self._broker = broker
 
     async def __call__(self) -> None:

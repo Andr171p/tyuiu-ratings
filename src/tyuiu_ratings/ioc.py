@@ -11,6 +11,7 @@ from .database import create_session_factory
 from .applicant.base import ApplicantRepository, ClassifierService, RecommendationService
 from .applicant.use_cases import UpdateApplicantsUseCase, RecommendDirectionsUseCase
 from .applicant.rest import ClassifierAPI, RecommendationAPI
+from .notification.use_cases import BroadcastNotificationsUseCase
 from .profile.base import ProfileRepository
 from .rating.base import RatingRepository
 from .applicant.repository import SQLApplicantRepository
@@ -80,6 +81,21 @@ class AppProvider(Provider):
             classifier_service=classifier_service,
             recommendation_service=recommendation_service,
             applicant_repository=applicant_repository
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_broadcast_notifications_use_case(
+            self,
+            applicant_repository: ApplicantRepository,
+            rating_repository: RatingRepository,
+            profile_repository: ProfileRepository,
+            broker: RabbitBroker
+    ) -> BroadcastNotificationsUseCase:
+        return BroadcastNotificationsUseCase(
+            applicant_repository=applicant_repository,
+            rating_repository=rating_repository,
+            profile_repository=profile_repository,
+            broker=broker
         )
 
 
