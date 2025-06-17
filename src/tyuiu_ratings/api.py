@@ -13,6 +13,7 @@ from .broker import create_faststream_app
 
 from .profile.router import profiles_router
 from .applicant.router import applicants_router
+from .notification.tasks import create_scheduler_app
 
 
 logger = logging.getLogger(__name__)
@@ -21,11 +22,16 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     faststream_app = await create_faststream_app()
+    scheduler_app = create_scheduler_app()
     await faststream_app.broker.start()
     logger.info("Broker started")
+    scheduler_app.start()
+    logger.info("Scheduler started")
     yield
     await faststream_app.broker.close()
     logger.info("Broker closed")
+    scheduler_app.shutdown()
+    logger.info("Scheduler stoped")
 
 
 def create_fastapi_app() -> FastAPI:
