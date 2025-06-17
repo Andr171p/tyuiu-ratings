@@ -124,6 +124,19 @@ class SQLProfileRepository(ProfileRepository):
             self.logger.error(f"Error while deleting profile: {e}")
             raise ProfileDeletingError(f"Error while updating profile: {e}") from e
 
+    async def get_by_applicant_id(self, applicant_id: int) -> Optional[CreatedProfile]:
+        try:
+            stmt = (
+                select(ProfileOrm)
+                .where(ProfileOrm.applicant_id == applicant_id)
+            )
+            result = await self.session.execute(stmt)
+            profile = result.scalar_one_or_none()
+            return CreatedProfile.model_validate(profile) if profile else None
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise ProfileReadingError(f"Error while reading profile: {e}") from e
+
     async def get_applicants(self, user_id: UUID) -> list["CreatedApplicant"]:
         from ..applicant.dto import CreatedApplicant
         from ..applicant.models import ApplicantOrm

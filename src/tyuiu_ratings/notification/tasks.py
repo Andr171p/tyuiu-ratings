@@ -3,15 +3,16 @@ from apscheduler.triggers.cron import CronTrigger
 
 import pytz
 
-from src.tyuiu_ratings.ioc import container
-from src.tyuiu_ratings.constants import CURRENT_TIMEZONE, BROADCAST_HOURS, BROADCAST_MINUTES
-from src.tyuiu_ratings.core.use_cases.notification import BroadcastNotificationsUseCase
+from .use_cases import BroadcastNotificationsUseCase
+
+from ..ioc import container
+from ..constants import CURRENT_TIMEZONE, BROADCAST_HOURS, BROADCAST_MINUTES
 
 
 async def broadcast_notifications_task() -> None:
     """Задача для рассылки уведомлений абитуриентам"""
     broadcast_notifications_use_case = await container.get(BroadcastNotificationsUseCase)
-    await broadcast_notifications_use_case.broadcast()
+    await broadcast_notifications_use_case()
 
 
 def create_scheduler_app() -> AsyncIOScheduler:

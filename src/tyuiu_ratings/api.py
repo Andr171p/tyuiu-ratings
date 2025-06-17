@@ -1,5 +1,4 @@
-from typing import Any
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import logging
@@ -20,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncGenerator[None, Any]:
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     faststream_app = await create_faststream_app()
     await faststream_app.broker.start()
     logger.info("Broker started")

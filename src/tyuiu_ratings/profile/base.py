@@ -26,6 +26,9 @@ class ProfileRepository(ABC):
     async def delete(self, user_id: UUID) -> bool: pass
 
     @abstractmethod
+    async def get_by_applicant_id(self, applicant_id: int) -> Optional[CreatedProfile]: pass
+
+    @abstractmethod
     async def get_applicants(self, user_id: UUID) -> list["CreatedApplicant"]: pass
 
     @abstractmethod
