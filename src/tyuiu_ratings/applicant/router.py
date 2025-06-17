@@ -144,5 +144,5 @@ async def recommend_directions(
     except DirectionsRecommendationError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Direction recommendation error: {e}"
+            detail=f"Error while recommend directions: {e}"
         )

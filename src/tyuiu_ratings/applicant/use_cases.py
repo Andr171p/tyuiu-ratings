@@ -1,7 +1,5 @@
 from typing import TYPE_CHECKING
 
-import logging
-
 if TYPE_CHECKING:
     from ..rating.base import RatingRepository
     from ..profile.schemas import Profile
@@ -31,7 +29,6 @@ class UpdateApplicantsUseCase:
             rating_repository: "RatingRepository",
             classifier_service: ClassifierService
     ) -> None:
-        self.logger = logging.getLogger(self.__class__.__name__)
         self._applicant_repository = applicant_repository
         self._rating_repository = rating_repository
         self._classifier_service = classifier_service
