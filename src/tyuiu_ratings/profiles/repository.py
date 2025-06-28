@@ -1,8 +1,8 @@
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..applicant.dto import CreatedApplicant
-    from ..rating.schemas import Rating
+    from ..applicants.dto import CreatedApplicant
+    from ..ratings.schemas import Rating
 
 import logging
 from uuid import UUID
@@ -138,8 +138,8 @@ class SQLProfileRepository(ProfileRepository):
             raise ProfileReadingError(f"Error while reading profile: {e}") from e
 
     async def get_applicants(self, user_id: UUID) -> list["CreatedApplicant"]:
-        from ..applicant.dto import CreatedApplicant
-        from ..applicant.models import ApplicantOrm
+        from ..applicants.dto import CreatedApplicant
+        from ..applicants.models import ApplicantOrm
         try:
             stmt = (
                 select(ApplicantOrm)
@@ -155,8 +155,8 @@ class SQLProfileRepository(ProfileRepository):
             raise ProfileReadingError(f"Error while reading applicants: {e}") from e
 
     async def get_ratings(self, user_id: UUID, direction: str) -> list["Rating"]:
-        from ..rating.schemas import Rating
-        from ..rating.models import RatingOrm
+        from ..ratings.schemas import Rating
+        from ..ratings.models import RatingOrm
         try:
             stmt = (
                 select(RatingOrm)

@@ -8,10 +8,10 @@ from pydantic import BaseModel
 from .schemas import Notification
 from .factory import NotificationFactory
 
-from ..applicant.base import ApplicantRepository
-from ..applicant.dto import CreatedApplicant
-from ..profile.base import ProfileRepository
-from ..rating.base import RatingRepository
+from ..applicants.base import ApplicantRepository
+from ..applicants.dto import CreatedApplicant
+from ..profiles.base import ProfileRepository
+from ..ratings.base import RatingRepository
 
 from ..utils import calculate_pages
 from ..constants import DEFAULT_LIMIT, NOTIFICATIONS_QUEUE

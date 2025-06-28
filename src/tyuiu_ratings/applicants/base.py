@@ -1,7 +1,7 @@
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..profile.schemas import Profile
+    from ..profiles.schemas import Profile
 
 from abc import ABC, abstractmethod
 

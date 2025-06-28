@@ -45,7 +45,7 @@ class ProfileOrm(Base):
     gpa: Mapped[float]
 
     exams: Mapped[list["ExamOrm"]] = relationship(
-        back_populates="profile",
+        back_populates="profiles",
         cascade="all, delete-orphan",
         passive_deletes=True
     )

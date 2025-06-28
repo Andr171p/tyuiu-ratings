@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from ..applicant.dto import CreatedApplicant
-    from ..rating.schemas import Rating
+    from ..applicants.dto import CreatedApplicant
+    from ..ratings.schemas import Rating
 
 from abc import ABC, abstractmethod
 

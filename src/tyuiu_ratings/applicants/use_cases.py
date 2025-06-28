@@ -1,8 +1,8 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..rating.base import RatingRepository
-    from ..profile.schemas import Profile
+    from ..ratings.base import RatingRepository
+    from ..profiles.schemas import Profile
 
 from .schemas import Applicant
 from .base import ClassifierService, RecommendationService, ApplicantRepository
@@ -64,7 +64,7 @@ class UpdateApplicantsUseCase:
             return
 
     async def _save_ratings(self, applicants: list[Applicant]) -> None:
-        from ..rating.dto import RatingCreation
+        from ..ratings.dto import RatingCreation
         await self._rating_repository.bulk_upsert([
             RatingCreation(
                 applicant_id=applicant.applicant_id,

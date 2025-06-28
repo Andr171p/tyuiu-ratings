@@ -115,7 +115,7 @@
  * Status code: <b>500 Internal server error</b></br>
 Ошибка при создании ресурса.
 ```json
-{"detail": "Error while creating profile"}
+{"detail": "Error while creating profiles"}
 ```
 
  * ### GET `/{user_id}`
@@ -159,5 +159,5 @@
  * Status code: <b>500 Internal server error</b></br>
 Ошибка при получении профиля.
 ```json
-{"detail": "Error while receiving profile"}
+{"detail": "Error while receiving profiles"}
 ```

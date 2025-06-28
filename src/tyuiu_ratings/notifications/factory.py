@@ -1,8 +1,8 @@
 from typing import Optional
 
-from ..profile.base import ProfileRepository
-from ..applicant.dto import CreatedApplicant
-from ..rating.schemas import Rating
+from ..profiles.base import ProfileRepository
+from ..applicants.dto import CreatedApplicant
+from ..ratings.schemas import Rating
 
 from .schemas import Notification
 from .rules import (

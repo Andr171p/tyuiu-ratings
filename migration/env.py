@@ -9,9 +9,9 @@ from alembic import context
 
 from src.tyuiu_ratings.database import Base
 
-from src.tyuiu_ratings.profile.models import ExamOrm, ProfileOrm
-from src.tyuiu_ratings.applicant.models import ApplicantOrm
-from src.tyuiu_ratings.rating.models import RatingOrm
+from src.tyuiu_ratings.profiles.models import ExamOrm, ProfileOrm
+from src.tyuiu_ratings.applicants.models import ApplicantOrm
+from src.tyuiu_ratings.ratings.models import RatingOrm
 
 from src.tyuiu_ratings.settings import PostgresSettings
 

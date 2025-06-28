@@ -66,7 +66,7 @@ async def get_applicant(
     except ApplicantsReadingError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while receiving applicant"
+            detail="Error while receiving applicants"
         )
 
 
@@ -86,7 +86,7 @@ async def get_competition_list(
         if not applicants:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No applicant yet"
+                detail="No applicants yet"
             )
         return CompetitionList(
             applicant_id=applicant_id,

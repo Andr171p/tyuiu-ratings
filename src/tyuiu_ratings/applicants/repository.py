@@ -1,7 +1,7 @@
 from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..profile.schemas import Profile
+    from ..profiles.schemas import Profile
 
 from sqlalchemy import select, func
 from sqlalchemy.dialects.postgresql import insert
@@ -51,8 +51,8 @@ class SQLApplicantRepository(ApplicantRepository):
             raise ApplicantsReadingError(f"Error while reading by applicant id: {e}") from e
 
     async def get_profile(self, applicant_id: int) -> Optional["Profile"]:
-        from ..profile.models import ProfileOrm
-        from ..profile.schemas import Profile
+        from ..profiles.models import ProfileOrm
+        from ..profiles.schemas import Profile
         try:
             stmt = (
                 select(ProfileOrm)
@@ -64,7 +64,7 @@ class SQLApplicantRepository(ApplicantRepository):
             return Profile.model_validate(profile) if profile else None
         except SQLAlchemyError as e:
             await self.session.rollback()
-            raise ApplicantsReadingError(f"Error while reading profile: {e}") from e
+            raise ApplicantsReadingError(f"Error while reading profiles: {e}") from e
 
     async def get_applicant(self, applicant_id: int, direction: str) -> Optional[CreatedApplicant]:
         try:

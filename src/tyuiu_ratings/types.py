@@ -1,6 +1,6 @@
 from typing import TypeAlias
 
-from .profile.schemas import Exam
+from .profiles.schemas import Exam
 
 
 ExamList: TypeAlias = list[Exam]

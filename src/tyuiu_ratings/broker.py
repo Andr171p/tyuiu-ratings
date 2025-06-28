@@ -5,7 +5,7 @@ from dishka.integrations.faststream import setup_dishka
 
 from .ioc import container
 
-from .applicant.broker import applicants_router
+from .applicants.broker import applicants_router
 
 
 async def create_faststream_app() -> FastStream:

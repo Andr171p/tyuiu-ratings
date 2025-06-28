@@ -11,10 +11,9 @@ from dishka.integrations.fastapi import setup_dishka
 from .ioc import container
 from .broker import create_faststream_app
 
-from .profile.router import profiles_router
-from .applicant.router import applicants_router
-from .notification.tasks import create_scheduler_app
-
+from .profiles.router import profiles_router
+from .applicants.router import applicants_router
+from .notifications.tasks import create_scheduler_app
 
 logger = logging.getLogger(__name__)
 

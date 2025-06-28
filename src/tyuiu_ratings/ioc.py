@@ -8,15 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from .database import create_session_factory
 
-from .applicant.base import ApplicantRepository, ClassifierService, RecommendationService
-from .applicant.use_cases import UpdateApplicantsUseCase, RecommendDirectionsUseCase
-from .applicant.rest import ClassifierAPI, RecommendationAPI
-from .notification.use_cases import BroadcastNotificationsUseCase
-from .profile.base import ProfileRepository
-from .rating.base import RatingRepository
-from .applicant.repository import SQLApplicantRepository
-from .profile.repository import SQLProfileRepository
-from .rating.repository import SQLRatingRepository
+from .applicants.base import ApplicantRepository, ClassifierService, RecommendationService
+from .applicants.use_cases import UpdateApplicantsUseCase, RecommendDirectionsUseCase
+from .applicants.rest import ClassifierAPI, RecommendationAPI
+from .notifications.use_cases import BroadcastNotificationsUseCase
+from .profiles.base import ProfileRepository
+from .ratings.base import RatingRepository
+from .applicants.repository import SQLApplicantRepository
+from .profiles.repository import SQLProfileRepository
+from .ratings.repository import SQLRatingRepository
 
 from .settings import Settings
 

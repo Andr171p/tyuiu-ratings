@@ -4,8 +4,8 @@ import asyncio
 
 from faststream.rabbit import RabbitBroker
 
-from src.tyuiu_ratings.applicant.dto import ApplicantUpdateEvent
-from src.tyuiu_ratings.applicant.schemas import Applicant
+from src.tyuiu_ratings.applicants.dto import ApplicantUpdateEvent
+from src.tyuiu_ratings.applicants.schemas import Applicant
 from src.tyuiu_ratings.constants import DIRECTIONS_MAPPING_CSV
 
 from src.tyuiu_ratings.settings import RabbitSettings

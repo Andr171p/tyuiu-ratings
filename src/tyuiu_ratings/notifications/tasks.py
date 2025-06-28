@@ -10,14 +10,11 @@ from dishka import Scope
 from .use_cases import BroadcastNotificationsUseCase
 
 from ..ioc import container
-# from ..utils import timer
 from ..constants import CURRENT_TIMEZONE, BROADCAST_HOURS, BROADCAST_MINUTES
-
 
 logger = logging.getLogger(__name__)
 
 
-# @timer(logger)
 async def broadcast_notifications_task() -> None:
     """Задача для рассылки уведомлений абитуриентам"""
     async with container(scope=Scope.REQUEST) as request_container:

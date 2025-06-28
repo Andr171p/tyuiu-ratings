@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 from .enums import NotificationLevel
 
-from ..rating.schemas import Rating
-from ..applicant.dto import CreatedApplicant
+from ..ratings.schemas import Rating
+from ..applicants.dto import CreatedApplicant
 from ..utils import is_rating_stable, calculate_velocity
 from ..constants import (
     MAX_CHANGE,

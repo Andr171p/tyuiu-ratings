@@ -16,8 +16,8 @@ from .exceptions import (
     ProfileDeletingError
 )
 
-from ..applicant.dto import CreatedApplicant
-from ..rating.schemas import Rating
+from ..applicants.dto import CreatedApplicant
+from ..ratings.schemas import Rating
 
 
 profiles_router = APIRouter(
@@ -43,7 +43,7 @@ async def create_profile(
     except ProfileCreationError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while creating profile"
+            detail="Error while creating profiles"
         )
 
 
@@ -68,7 +68,7 @@ async def get_profile(
     except ProfileReadingError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while receiving profile"
+            detail="Error while receiving profiles"
         )
 
 
@@ -97,7 +97,7 @@ async def update_profile(
     except ProfileUpdatingError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while updating profile"
+            detail="Error while updating profiles"
         )
 
 
@@ -121,7 +121,7 @@ async def delete_profile(
     except ProfileDeletingError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while deleting profile"
+            detail="Error while deleting profiles"
         )
 
 
@@ -151,7 +151,7 @@ async def get_applicants(
 
 
 @profiles_router.get(
-    path="/{user_id}/rating-history",
+    path="/{user_id}/ratings-history",
     status_code=status.HTTP_200_OK,
     response_model=list[Rating],
     summary=""""Возвращает историю изменения рейтинга 
@@ -173,5 +173,5 @@ async def get_rating_history(
     except ProfileReadingError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while receiving rating history"
+            detail="Error while receiving ratings history"
         )
